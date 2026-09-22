@@ -1,13 +1,16 @@
-"""Track C (Divyansh): District-level spatial aggregation.
+"""District & station aggregation module.
 
-Tasks owned:
-- Task 6: Area-weighted mean aggregation of corrected rainfall and heavy rain probabilities to district boundaries.
-
-Contracts consumed:
-- data/processed/corrected_grid.nc
-- data/processed/heavy_rain_prob.nc
-- data/raw/district_shapefile/
-
-Contracts produced:
-- outputs/district_table.csv (district_name, date, corrected_rainfall_mm, rainfall_category, p_heavy, p_very_heavy)
+Aggregates gridded corrected forecasts, probability products, and regime
+classifications to district polygons and station points.
 """
+
+
+def run():
+    """Run district + station aggregation pipeline stage."""
+    from src.district_agg.district_aggregator import aggregate_districts
+    from src.district_agg.station_aggregator import aggregate_stations
+
+    print("  Running district aggregation ...")
+    aggregate_districts()
+    print("  Running station aggregation ...")
+    aggregate_stations()

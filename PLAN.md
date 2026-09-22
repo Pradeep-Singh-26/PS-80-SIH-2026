@@ -128,7 +128,13 @@ improves via a feedback and retraining loop.**
     integration test that runs the full pipeline on a small fixture dataset.
 21. **CI + containerization**: a CI pipeline definition (lint + tests) and a
     Docker setup so the system can be built and run consistently anywhere.
-22. **Documentation**: architecture doc, API reference, and a forecaster-
+22. **Config-driven data paths**: all module data I/O goes through
+    `config.yaml` → `src/config.py`. Track C (aggregation, verification,
+    API, dashboard, alerts) develops against synthetic fixture data
+    (`tests/fixtures/`) while Tracks A and B build their pipelines.
+    When real data is ready, update `config.yaml` paths — zero code
+    changes required in any downstream module.
+23. **Documentation**: architecture doc, API reference, and a forecaster-
     facing user guide.
 
 ### 2.2 Genuinely deferred (needs infrastructure/access this team cannot

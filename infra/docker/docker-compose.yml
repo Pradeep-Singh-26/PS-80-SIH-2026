@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - CONFIG_PATH=config.yaml
+    volumes:
+      - ../../data:/app/data:ro
+      - ../../outputs:/app/outputs
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - CONFIG_PATH=config.yaml
+    volumes:
+      - ../../data:/app/data:ro
+      - ../../outputs:/app/outputs:ro
+    command: streamlit run dashboard/web/app.py --server.port 8501 --server.headless true
+    depends_on:
+      - api
+    restart: unless-stopped

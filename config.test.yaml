@@ -1,0 +1,39 @@
+# ============================================================
+# Test/Dev Configuration — points all paths to fixtures
+# Usage: CONFIG_PATH=config.test.yaml python run_pipeline.py
+# ============================================================
+
+data:
+  features_daily: tests/fixtures/features_daily.csv
+  nwp_grid_gfs: tests/fixtures/nwp_grid_gfs.nc
+  nwp_grid_ecmwf: tests/fixtures/nwp_grid_ecmwf.nc
+  obs_grid: tests/fixtures/obs_grid.nc
+  station_obs: tests/fixtures/station_obs.csv
+  climatology: tests/fixtures/climatology.nc
+  regime_labels: tests/fixtures/regime_labels.csv
+  regime_predictions: tests/fixtures/regime_predictions.csv
+  district_shapefile: tests/fixtures/district_shapefile/
+
+  ensemble_grid: tests/fixtures/ensemble_grid.nc
+  corrected_grid: tests/fixtures/corrected_grid.nc
+  correction_method_log: tests/fixtures/correction_method_log.csv
+  analog_correction: tests/fixtures/analog_correction.nc
+  heavy_rain_prob: tests/fixtures/heavy_rain_prob.nc
+
+outputs:
+  district_table: tests/fixtures/outputs/district_table.csv
+  station_table: tests/fixtures/outputs/station_table.csv
+  verification_report: tests/fixtures/outputs/verification_report/
+  alerts_log: tests/fixtures/outputs/alerts_log/
+
+thresholds:
+  heavy: 64.5
+  very_heavy: 115.5
+  extremely_heavy: 204.5
+
+api:
+  host: "127.0.0.1"
+  port: 8000
+
+dashboard:
+  port: 8501

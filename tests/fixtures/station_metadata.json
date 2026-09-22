@@ -1,0 +1,27 @@
+[
+  {
+    "station_id": "PUNE",
+    "lat": 18.52,
+    "lon": 73.85
+  },
+  {
+    "station_id": "MUMBAI",
+    "lat": 19.07,
+    "lon": 72.87
+  },
+  {
+    "station_id": "NAGPUR",
+    "lat": 21.14,
+    "lon": 79.08
+  },
+  {
+    "station_id": "BHOPAL",
+    "lat": 23.25,
+    "lon": 77.41
+  },
+  {
+    "station_id": "INDORE",
+    "lat": 22.71,
+    "lon": 75.85
+  }
+]

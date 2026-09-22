@@ -1,41 +1,32 @@
-# PS 26080 — Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
+# PS-80 SIH 2026: Regime-Aware AI Post-Processing
 
-A complete system (not a scoped-down demo) for MoES/NCMRWF problem statement
-26080: multi-source ingestion, multi-label weather regime classification
-with explainability, ensemble NWP fusion, regime-conditioned bias correction
-(quantile mapping + ML + analog pathways), calibrated heavy-rain probability
-with uncertainty, district/station products, full skill verification, an
-API, a dashboard, an alerting layer, and an MLOps loop (feedback, drift
-monitoring, retraining, model registry).
+This repository implements an AI-based post-processing system for monsoon rainfall forecasts. 
 
-See [PLAN.md](PLAN.md) for the full architecture and task breakdown, and
-[TEAM_SPLIT.md](TEAM_SPLIT.md) for how the three-person team divides the
-work with strict, non-overlapping boundaries.
+## Structure & Architecture
+The system is divided into three functional tracks with strict file-contract boundaries.
 
-**Status: scaffolding only — no pipeline code has been written yet.**
+- **Track A:** Data Ingest & Weather Regime Classification
+- **Track B:** Bias Correction & Ensembling (ML/AI)
+- **Track C:** Post-Processing, Verification, Alerts, and Serving (API & Dashboard)
 
-## Setup (once implementation starts)
+## Getting Started
 
-```
-pip install -r requirements.txt
-```
+1. Set up your environment:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Generate synthetic fixture data (to test without real NWP inputs):
+   ```bash
+   python tests/fixtures/generate_fixtures.py
+   ```
+3. Run the orchestration pipeline:
+   ```bash
+   python run_pipeline.py --config config.test.yaml
+   ```
 
-## Layout
+## Documentation
 
-See PLAN.md Section 6 for the full repository layout and PLAN.md Section 7
-for the task list each folder corresponds to.
-
-## Data sources actually used
-
-To be filled in from `data/ACCESS_NOTES.md` once Task 0 is complete — this
-section must list every place a fallback/proxy data source was used instead
-of the primary one named in PLAN.md Section 5, and every place a method
-defaulted (e.g. quantile mapping instead of ML correction) due to data
-sparsity.
-
-## Deferred scope
-
-See PLAN.md Section 2.2 for what is explicitly out of reach for this build
-(live operational data feeds, real SMS/push delivery, primary use of deep
-spatial correction models, production cloud deployment, full nationwide
-coverage) and why.
+For full details, please refer to the `docs/` directory:
+- [Architecture](docs/architecture.md)
+- [API Reference](docs/api_reference.md)
+- [User Guide](docs/user_guide.md)

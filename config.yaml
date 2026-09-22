@@ -1,0 +1,52 @@
+# ============================================================
+# PS 26080 — Data & Output Path Configuration
+# ============================================================
+# This file is the SINGLE place where file paths are defined.
+# When Track A/B produce real data, update the paths below —
+# no code changes needed in any module.
+#
+# For test/dev runs, use config.test.yaml instead:
+#   CONFIG_PATH=config.test.yaml python run_pipeline.py
+# ============================================================
+
+# ------ Input data (produced by Track A & B) ------
+data:
+  # Track A outputs
+  features_daily: data/processed/features_daily.csv
+  nwp_grid_gfs: data/processed/nwp_grid_gfs.nc
+  nwp_grid_ecmwf: data/processed/nwp_grid_ecmwf.nc
+  obs_grid: data/processed/obs_grid.nc
+  station_obs: data/processed/station_obs.csv
+  climatology: data/processed/climatology.nc
+  regime_labels: data/processed/regime_labels.csv
+  regime_predictions: data/processed/regime_predictions.csv
+  district_shapefile: data/raw/district_shapefile/
+
+  # Track B outputs
+  ensemble_grid: data/processed/ensemble_grid.nc
+  corrected_grid: data/processed/corrected_grid.nc
+  correction_method_log: data/processed/correction_method_log.csv
+  analog_correction: data/processed/analog_correction.nc
+  heavy_rain_prob: data/processed/heavy_rain_prob.nc
+
+# ------ Output paths (produced by Track C) ------
+outputs:
+  district_table: outputs/district_table.csv
+  station_table: outputs/station_table.csv
+  verification_report: outputs/verification_report/
+  alerts_log: outputs/alerts_log/
+
+# ------ Thresholds (IMD official categories, mm/24h) ------
+thresholds:
+  heavy: 64.5
+  very_heavy: 115.5
+  extremely_heavy: 204.5
+
+# ------ API settings ------
+api:
+  host: "0.0.0.0"
+  port: 8000
+
+# ------ Dashboard settings ------
+dashboard:
+  port: 8501
