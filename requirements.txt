@@ -1,5 +1,5 @@
-# Shared dependencies for the prototype. Add to the relevant section only —
-# do not reorganize this file without updating TEAM_SPLIT.md.
+# Shared dependencies for the full-solution build. Add to the relevant
+# section only — do not reorganize this file without updating TEAM_SPLIT.md.
 
 # Core
 numpy
@@ -8,19 +8,28 @@ xarray
 netCDF4
 scipy
 
-# Track A (Pradeep) — data/ingest/preprocess
-cdsapi          # ERA5 access
+# Track A (Pradeep) — ingestion, preprocessing, regime classifier
+cdsapi              # ERA5 access
 geopandas
 rasterio
 regionmask
+xgboost
+lightgbm
+shap                # classifier explainability
 
-# Track B (Baljeet) — modeling
+# Track B (Baljeet) — correction, probability/uncertainty, MLOps
 scikit-learn
 xgboost
 lightgbm
+shap                # correction explainability
+statsmodels         # quantile regression
+mlflow              # model registry / experiment tracking
 
-# Track C (Divyansh) — aggregation/verification/presentation
+# Track C (Divyansh) — aggregation, verification, API, dashboard, ops
 matplotlib
 folium
+fastapi
+uvicorn
 streamlit
 jinja2
+pytest

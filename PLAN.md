@@ -1,328 +1,436 @@
 # PS 26080 — Regime-Aware AI Post-Processing of Monsoon Rainfall Forecasts
 
 > **How to use this document (read this first, especially if you are an agent
-> picking this up with no prior context):** This file is the single source of
-> truth for what to build, in what order, and what "done" means for each
-> piece. Do not start coding before Section 2 (scope) and Section 9 (data
-> access) are resolved for the current environment — they gate everything
-> else. Work top-to-bottom through Section 7 (task list); each task states
-> its inputs, outputs, and acceptance criteria so it can be picked up,
-> paused, or handed to a different agent without re-deriving context. If a
-> decision point requires human input (e.g. no data access), stop and ask
-> rather than guessing silently — flag it explicitly in your output.
+> or teammate picking this up with no prior context):** This is the single
+> source of truth for the full system design. It describes a complete,
+> production-shaped solution to the problem statement — not a scoped-down
+> demo. Section 2 fixes what is built now vs. genuinely future work (mostly
+> things that require infrastructure/data this team doesn't control, e.g.
+> live operational feeds from NCMRWF). Everything else described here is
+> meant to be built. Section 7 breaks it into an ordered task list with
+> explicit input/output contracts; [TEAM_SPLIT.md](TEAM_SPLIT.md) assigns
+> those tasks to three people with strict, non-overlapping boundaries. No
+> code has been written yet — this pass only establishes structure.
 
 ## 0. One-paragraph summary
 
-Build a prototype pipeline that (a) classifies the prevailing Indian monsoon
-weather regime for a given date, (b) applies a regime-specific correction to
-raw NWP rainfall forecasts for that date, (c) estimates probability of heavy/
-very-heavy rainfall from the corrected forecast, (d) aggregates results to
-Indian districts, and (e) verifies corrected vs. raw forecasts against
-observations using standard forecast-verification metrics. This is a
-proof-of-concept for a hackathon/PoC submission to MoES/NCMRWF, not an
-operational system — scope is deliberately narrowed (see Section 2) to be
-buildable and demoable with public data.
+Build a full regime-aware rainfall post-processing **system**: it ingests
+multiple NWP forecast sources plus observations, satellite/radar and
+reanalysis fields; classifies the prevailing monsoon weather regime (with
+uncertainty and explainability); applies regime-conditioned, ensemble-aware
+bias correction to raw rainfall forecasts; produces calibrated heavy/very-
+heavy rainfall probabilities with uncertainty bounds; aggregates results to
+district and station level; runs full skill verification (RMSE, ETS, CSI,
+POD, FAR, FSS, reliability) split by regime; serves everything through an
+API and an interactive dashboard; and includes a continuous-learning loop
+(drift detection, retraining, forecaster feedback) and an alerting layer for
+heavy-rainfall warnings. It is designed to be handed to NCMRWF as a
+deployable system, not just a notebook.
 
 ## 1. Problem framing
 
 Raw NWP rainfall forecasts have systematic, regime-dependent biases (active
-monsoon, break monsoon, low/depression, orographic, coastal, western
-disturbance). A single global bias-correction model averages over these
-regimes and underperforms in each. Solution shape:
-**classify regime → route to regime-specific correction → produce
-district/grid rainfall + heavy-rain probability + verification report.**
+monsoon, break monsoon, monsoon lows/depressions, orographic rainfall,
+coastal rainfall, western disturbances). A single global bias-correction
+method underperforms across regimes. This system: **detects the regime
+(with confidence + explanation) → routes to a regime-specific, ensemble-
+capable correction → produces calibrated probabilistic rainfall and heavy-
+rain-probability products at grid/station/district level → verifies skill
+per regime → serves the result via API/dashboard/alerts → continuously
+improves via a feedback and retraining loop.**
 
-## 2. Scope — what to build now vs. defer
+## 2. Scope
 
-Treat this section as binding. If you are unsure whether something is in
-scope, it is not — add it to "deferred" and move on.
+### 2.1 IN SCOPE — build now (full solution, not a cut-down demo)
 
-### 2.1 IN SCOPE for this prototype
-1. **Weather regime classifier** — 4-class (see Section 3), feature-based
-   (not raw imagery/deep learning), trained on a limited domain and 1–2
-   monsoon seasons.
-2. **Regime-conditioned bias correction** — one correction step per regime
-   class, applied to raw NWP grid rainfall (see Section 4 for method choice
-   and the fallback if per-regime data is too sparse).
-3. **Heavy rainfall probability** — probability of exceeding IMD's official
-   heavy (≥64.5mm/24h) and very heavy (≥115.5mm/24h) thresholds, derived from
-   the corrected forecast.
-4. **District aggregation** — area-weighted mean of grid values within each
-   district polygon, producing a table (and optionally a simple map).
-5. **Verification report** — RMSE, ETS, CSI, POD, FAR for raw vs. corrected
-   forecast against observations, broken out by regime and by rain
-   threshold. FSS is optional/best-effort (see 2.2).
-6. **Minimal output layer** — a static table + map image, or a simple
-   Streamlit/HTML page. Not a hosted service.
-7. **One reproducible end-to-end script/notebook chain** runnable on a
-   packaged sample dataset.
+**Data & regimes**
+1. Multi-source ingestion: NWP forecasts (support more than one model/
+   source, e.g. GFS + ECMWF open data + NCMRWF/IMD output where available),
+   observation grids/stations, reanalysis (MSLP, OLR, winds), satellite
+   proxies (OLR/brightness temperature as INSAT proxy), radar/nowcast data
+   where publicly available, and IMD low-pressure-system/depression best
+   track records.
+2. Automated ingestion pipeline scaffolding (schedulable, idempotent,
+   re-runnable) — built to run on a schedule even though this team will run
+   it manually/on-demand rather than against a live operational feed.
+3. **6-class regime classifier**: `active`, `break`, `low_depression`,
+   `western_disturbance`, `orographic`, `coastal` (see Section 3), with
+   **multi-label support** (a day can carry more than one active regime,
+   e.g. depression + coastal enhancement), confidence scores, and an
+   explainability layer (feature attribution per prediction).
+4. Regime detection from **multiple signal families**: dynamical (MSLP/
+   trough), thermodynamical (OLR/convection proxy), and satellite proxy —
+   fused rather than relying on one signal alone.
 
-### 2.2 DEFERRED / explicitly OUT OF SCOPE for this prototype
-Do not build these unless the user explicitly asks to expand scope:
-- Pan-India, multi-model/multi-NWP ensemble ingestion (start with one NWP
-  source only).
-- Real-time/operational data feed, automated ingestion, cron/scheduling.
-- Deep learning on raw spatial fields (CNN/U-Net/ConvLSTM) for correction.
-- Full multi-scale FSS / full spatial verification suite (implement a basic
-  single-scale FSS only if time permits; otherwise omit and say so in the
-  report).
-- Sub-daily (3-hourly) or nowcasting-scale resolution — daily accumulated
-  rainfall only.
-- Regime detection from satellite/INSAT imagery — use reanalysis-derived
-  circulation indices instead.
-- Auth, API hosting, cloud deployment, scaling.
-- Explainability dashboards, uncertainty quantification beyond the basic
-  probability output.
-- Multi-label/simultaneous regime overlap — assign a single dominant regime
-  per date.
+**Correction & products**
+5. Regime-conditioned bias correction with **two interchangeable methods**:
+   (a) per-regime quantile mapping (fast, interpretable baseline) and
+   (b) per-regime/regime-feature ML correction (gradient boosting, with a
+   documented upgrade path to a spatial deep model). Both are built; the
+   system picks per-regime whichever has enough training data, and this
+   choice is logged per run.
+6. **Multi-model ensemble fusion**: when more than one NWP source is
+   ingested, blend them (simple/weighted ensemble mean or ML-learned
+   weights) before/alongside correction, rather than assuming a single NWP
+   source.
+7. **Analog-based correction** as a second, independent correction pathway:
+   for a given regime + season, find historical analog days and use their
+   empirical error distribution — used both as an alternative correction
+   and as a sanity check/ensemble member against the ML correction.
+8. Heavy/very-heavy rainfall probability, **calibrated** (reliability-
+   checked) and **with uncertainty quantification** (ensemble spread or
+   quantile regression, not a single point probability).
+9. Grid, **station-level**, and **district-level** aggregated products (not
+   grid/district only — stations included since IMD verifies at stations
+   too).
 
-## 3. Weather regime classes (final label set — use exactly these 4)
+**Verification**
+10. Full verification suite: RMSE, ETS, CSI, POD, FAR, **and FSS at multiple
+    neighborhood scales**, plus reliability diagrams and rank histograms for
+    the probabilistic products — all split by regime, by threshold, and by
+    lead time if multiple lead times are ingested.
+11. Skill comparison report: raw NWP vs. corrected vs. (if multiple NWP
+    ingested) ensemble-blended, so the report demonstrates the value added
+    at each pipeline stage.
 
-| Label | Meaning | Primary detection signal |
+**Explainability & trust**
+12. Per-prediction explainability for both the regime classifier and the
+    correction model (e.g. SHAP-based feature attribution) — a forecaster
+    should be able to see *why* the system picked a regime/correction, not
+    just the number.
+13. Confidence-aware presentation: every rainfall/probability output is
+    shown with its regime confidence and correction-method provenance, not
+    as a bare number.
+
+**Serving & product layer**
+14. **API service** exposing regime classification, corrected forecast,
+    heavy-rain probability, and district/station products — so this can be
+    integrated into other MoES/NCMRWF systems, not just viewed in a
+    dashboard.
+15. **Interactive dashboard**: district/station map + table, regime
+    explanation panel, verification/skill view, historical regime
+    climatology explorer, and a raw-vs-corrected comparison view.
+16. **Alerting layer**: rule-based heavy/very-heavy rainfall alert
+    generation (e.g. district crosses a threshold with high confidence) —
+    logged to `outputs/alerts_log/`, with the delivery channel (SMS/email/
+    push) stubbed as a pluggable interface rather than actually wired to a
+    live telecom/SMS provider (see 2.2).
+
+**Operations & continuous improvement**
+17. **Human-in-the-loop feedback**: a forecaster can flag/correct a
+    predicted regime or a rainfall product; flagged cases are logged in a
+    structured format for retraining.
+18. **Drift monitoring**: track input feature distributions and forecast
+    skill over time; flag when retraining is warranted.
+19. **Retraining pipeline + model registry**: versioned models, reproducible
+    retraining, rollback capability.
+20. **Testing**: unit tests for each pipeline stage's core logic, and an
+    integration test that runs the full pipeline on a small fixture dataset.
+21. **CI + containerization**: a CI pipeline definition (lint + tests) and a
+    Docker setup so the system can be built and run consistently anywhere.
+22. **Documentation**: architecture doc, API reference, and a forecaster-
+    facing user guide.
+
+### 2.2 Genuinely deferred (needs infrastructure/access this team cannot
+     obtain on its own — not a scope-cutting choice)
+- **Live production data feeds**: this system is built to be schedulable,
+  but it will run against downloaded/batch data, not a real-time
+  operational NCMRWF/IMD feed, since that requires institutional access
+  this project doesn't have.
+- **Real SMS/push notification delivery**: the alerting layer is built with
+  a pluggable delivery interface; wiring it to an actual telecom/SMS
+  gateway or NDMA integration is out of reach without institutional
+  partnership, so it is stubbed/mocked and clearly documented as such.
+- **Raw deep learning on full spatial fields** (CNN/U-Net/ConvLSTM/
+  transformer-based spatial correction) as the *primary* correction method
+  — the architecture leaves a clean extension point for this (see Section
+  4), but building and tuning it from scratch is treated as a fast-follow,
+  not a blocker for a complete first system, because it needs materially
+  more data and compute than the rest of the pipeline.
+- **Cloud production deployment / auth / multi-tenant scaling** — the
+  system is containerized and API-first so it *can* be deployed, but
+  standing up actual cloud infra, user auth, and horizontal scaling is an
+  institutional/operational decision, not something this project decides
+  unilaterally.
+- **Nationwide, all-India, all-season coverage** at full station density in
+  the first build — the architecture supports it (nothing is hard-coded to
+  one region), but the first fully-verified build targets a defined
+  domain/season set (fixed in Task 0) and expanding coverage is a
+  data-acquisition exercise, not a redesign.
+
+## 3. Weather regime classes (6-class, multi-label)
+
+| Label | Meaning | Primary signal(s) |
 |---|---|---|
-| `active` | Active monsoon: strong monsoon trough, above-normal rainfall over the monsoon core zone | Rainfall anomaly + MSLP trough position |
-| `break` | Break monsoon: weak/displaced trough, suppressed rainfall over central India | Rainfall anomaly (negative) + trough displacement |
-| `low_depression` | A monsoon low or depression is present | IMD best-track / low-pressure-system presence flag |
-| `other` | Everything else, including orographic/coastal-enhanced and (if in the demo season) western-disturbance-influenced days | Fallback when none of the above triggers |
+| `active` | Active monsoon: strong trough, above-normal core-zone rainfall | Rainfall anomaly (+), MSLP trough position |
+| `break` | Break monsoon: weak/displaced trough, suppressed central-India rainfall | Rainfall anomaly (−), trough displacement |
+| `low_depression` | Monsoon low/depression present | IMD best-track presence flag |
+| `western_disturbance` | WD-influenced rainfall (esp. NW India, outside/at monsoon margins) | WD-track presence, MSLP pattern over NW India |
+| `orographic` | Terrain-driven enhancement (Western Ghats, NE hills) | Elevation-conditioned rainfall excess vs. surrounding grid |
+| `coastal` | Coastal convergence-driven rainfall | Coastal proximity + convective indicators |
 
-Rationale for collapsing to 4 classes (not 6): keeps per-class training data
-large enough to be trainable within a 1–2 season dataset. If a future
-iteration has more data, `other` can be split into `orographic_coastal` and
-`western_disturbance` — treat that as a backlog item, not a blocker now.
+A day/grid-point may carry **more than one label** (e.g. `low_depression` +
+`coastal`); the classifier outputs a probability per label, and the
+correction stage uses the dominant (highest-probability) label to select its
+primary regime-specific model, with the secondary label available as an
+explanatory feature and for edge-case ensembling. This replaces the earlier
+4-class, single-label prototype design.
 
 ## 4. Modeling approach
 
-- **Regime classifier**: feature-based gradient boosting (XGBoost/LightGBM)
-  over physically meaningful daily indices: monsoon trough latitude proxy,
-  MSLP anomaly, OLR anomaly, regional rainfall anomaly, IMD low-pressure-
-  system presence flag (binary). If labeled data is too scarce to train a
-  model reliably, fall back to a rule-based decision tree using the same
-  indices — document which path was used and why.
-- **Bias correction**: per-regime quantile mapping (preferred, simplest,
-  most defensible) using NWP rainfall + climatology as reference. **Fallback
-  rule**: if any regime class has too few historical samples to fit a
-  reliable per-regime quantile mapping (rule of thumb: fewer than ~30 grid-
-  days), fall back to a single model with regime as a one-hot feature
-  instead of a fully separate model per regime. Record which regimes used
-  which path in the run's output metadata.
-- **Heavy rainfall probability**: fit the regime-specific residual error
-  distribution of the corrected forecast, compute P(rain > threshold) from
-  it. If enough heavy-rain events exist in training data, a direct binary
-  classifier per threshold is an acceptable alternative — pick whichever is
-  simpler given the data actually available.
-- **District aggregation**: area-weighted mean of grid cells intersecting
-  each district polygon (standard GIS zonal statistics — no need for a
-  custom method).
+- **Regime classifier**: multi-label gradient boosting (XGBoost/LightGBM,
+  one-vs-rest per label) over dynamical + thermodynamical + satellite-proxy
+  features (Section 9.1 lists sources). Explainability via SHAP values per
+  prediction. Extension point: a sequence model (e.g. temporal CNN/LSTM
+  over the feature time series) is a documented future upgrade if the
+  gradient-boosting baseline underperforms — not built in the first pass.
+- **Bias correction**: two parallel, swappable methods per regime —
+  (a) quantile mapping (baseline, always available, needs least data), and
+  (b) gradient-boosted regression using NWP + auxiliary features (elevation,
+  coast distance, climatology). Per-regime, the system picks whichever
+  method has enough training samples (documented threshold, e.g. ~30
+  grid-days minimum for a dedicated per-regime fit; below that, fall back to
+  a single cross-regime model with regime as a feature). The chosen method
+  per regime is recorded in run metadata for auditability. **Extension
+  point**: a spatial deep-learning correction (CNN/U-Net) can be added later
+  as a third method behind the same interface, once enough data is
+  available (see Section 2.2).
+- **Multi-model ensemble fusion**: if multiple NWP sources are ingested,
+  blend before correction using either a simple weighted mean (weights from
+  historical skill per source per regime) or a learned blending model — the
+  interface supports both; start with the weighted mean as the default.
+- **Analog-based correction**: for a target date's regime + season, retrieve
+  the k most similar historical dates (by feature distance) within the same
+  regime and use their empirical forecast-error distribution as an
+  independent correction estimate — reported alongside the ML/quantile-
+  mapping correction as a cross-check, and usable as an ensemble member.
+- **Heavy rainfall probability + uncertainty**: fit regime-specific residual
+  error distributions from the corrected forecast (for probability), and
+  produce an uncertainty band via ensemble spread (across correction
+  methods/analogs) or quantile regression — not a single deterministic
+  probability number.
+- **Aggregation**: area-weighted zonal statistics to district polygons;
+  nearest-grid/interpolated values to station points.
+- **Explainability**: SHAP (or equivalent) feature attribution stored
+  alongside every regime prediction and correction decision, surfaced in
+  the dashboard.
 
 ## 5. Data plan
 
-| Need | Preferred source | Public fallback if preferred is inaccessible |
+| Need | Primary source | Fallback |
 |---|---|---|
-| Ground-truth rainfall | IMD gridded rainfall (0.25°, daily) | — (if entirely inaccessible, state this explicitly in README and consider ERA5 precipitation as a lower-quality substitute, clearly labeled as such) |
-| Raw NWP forecast | NCMRWF/IMD operational NWP output | NOAA GFS forecast archive, or ECMWF open data, or ERA5/IMDAA reanalysis used as a "perfect prog" proxy |
-| Regime-indicator fields (MSLP, OLR) | ERA5 reanalysis | NOAA interpolated OLR + NCEP reanalysis |
+| Ground-truth rainfall (gridded) | IMD gridded rainfall (0.25°, daily) | ERA5 precipitation (clearly labeled as lower-quality substitute) |
+| Ground-truth rainfall (station) | IMD station observations | Any publicly available station network for the domain |
+| NWP forecast — source 1 | NCMRWF/IMD operational NWP output | NOAA GFS forecast archive |
+| NWP forecast — source 2 (for ensemble fusion) | ECMWF open data | Any second public NWP archive |
+| Regime-indicator fields (MSLP, OLR, winds) | ERA5 reanalysis | NOAA interpolated OLR + NCEP reanalysis |
+| Satellite proxy | INSAT brightness temperature (if accessible) | NOAA interpolated OLR as convection proxy |
+| Radar/nowcast (optional, for short lead times) | IMD radar mosaic (if accessible) | Omit lead times that need it; document as unavailable |
 | Low-pressure-system/depression dates | IMD best-track archive | RSMC New Delhi best-track data (public) |
-| District boundaries | Survey of India | data.gov.in open data portal, or a maintained public GIS admin-boundary repository |
+| Western disturbance dates | IMD WD advisories/climatology | Published WD climatology datasets |
+| District boundaries | Survey of India | data.gov.in open data portal |
+| Station metadata | IMD station list | Any public station metadata source |
 
-**Domain and period**: restrict to one representative subregion (e.g. the
-central India monsoon core zone) and 1–2 monsoon seasons, chosen once actual
-data access is confirmed (see Section 9). This keeps the packaged sample
-dataset small enough to ship with the prototype.
-
-Any time a fallback/proxy source is used instead of the preferred one, this
-must be stated explicitly in the README, not just in this plan.
+**Domain and period**: fixed once in Task 0 (`data/ACCESS_NOTES.md`) —
+architecture does not hard-code a region, so the domain can be widened later
+without redesign, but the first fully verified build targets one domain and
+1–3 monsoon seasons. Any fallback/proxy source used instead of the primary
+one must be recorded explicitly in `README.md`.
 
 ## 6. Repository layout
 
-Use this structure so any agent or contributor knows where things go. Create
-folders as they're needed — don't pre-create empty ones.
-
 ```
 PS 80/
-├── PLAN.md                  # this file — always keep in sync with actual scope
-├── README.md                # user-facing: how to run, data sources used, known limitations
+├── PLAN.md
+├── TEAM_SPLIT.md
+├── README.md
+├── requirements.txt
+├── run_pipeline.py                    # end-to-end batch pipeline entry point
 ├── data/
-│   ├── raw/                 # untouched downloaded data (NWP, obs, reanalysis, shapefile)
-│   └── processed/           # regridded/aligned/labeled data ready for modeling
+│   ├── raw/                           # untouched downloads (NWP x2, obs, reanalysis, satellite, best-track, shapefile, stations)
+│   │   └── district_shapefile/
+│   ├── processed/                     # regridded/aligned/labeled/feature data
+│   └── external/                      # reference tables (thresholds, station metadata, analog index)
 ├── src/
-│   ├── ingest/               # scripts to pull/prepare each data source (Section 7, Task 1)
-│   ├── preprocess/            # regridding, feature computation, regime labeling (Task 2)
-│   ├── regime_classifier/     # training + inference (Task 3)
-│   ├── bias_correction/       # per-regime correction models (Task 4)
-│   ├── heavy_rain_prob/       # probability estimation (Task 5)
-│   ├── district_agg/          # grid-to-district aggregation (Task 6)
-│   └── verification/          # metric computation + report generation (Task 7)
-├── notebooks/                # exploratory work; final pipeline must NOT depend on notebooks
-├── outputs/
-│   ├── district_table.csv    # Task 6 output
-│   ├── verification_report/  # Task 7 output (tables + plots)
-│   └── figures/
-├── run_pipeline.py            # single entry point chaining all stages end-to-end
-└── requirements.txt
+│   ├── ingest/
+│   │   ├── nwp_sources/               # one module per NWP source
+│   │   ├── observations/              # gridded + station obs
+│   │   ├── satellite_radar/           # satellite proxy + radar (if available)
+│   │   └── realtime_feed/             # schedulable ingestion scaffolding (batch-run in practice)
+│   ├── preprocess/                    # regridding, feature engineering, regime labeling, climatology
+│   ├── regime_classifier/             # multi-label classifier + explainability
+│   ├── bias_correction/
+│   │   ├── ensemble/                  # multi-NWP fusion
+│   │   └── analog/                    # analog-based correction
+│   ├── heavy_rain_prob/               # calibrated probability + uncertainty
+│   ├── uncertainty/                   # shared UQ utilities (ensemble spread, quantile regression)
+│   ├── explainability/                # SHAP/attribution utilities shared by classifier + correction
+│   ├── mlops/
+│   │   ├── retraining/                # retraining pipeline
+│   │   ├── model_registry/            # versioned model storage/metadata
+│   │   └── drift_monitoring/          # feature/skill drift checks
+│   ├── district_agg/                  # district + station aggregation
+│   ├── verification/                  # RMSE/ETS/CSI/POD/FAR/FSS/reliability, per-regime reports
+│   └── alerts/                        # threshold-based alert generation + pluggable delivery interface
+├── api/                                # API service exposing all products
+├── dashboard/
+│   ├── web/                            # dashboard app
+│   └── components/                     # shared UI pieces (map, table, regime explainer, skill view)
+├── infra/
+│   ├── docker/                         # containerization
+│   └── ci/                             # CI pipeline definitions
+├── monitoring/                         # operational logging/metrics for the running system
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── docs/                                # architecture doc, API reference, forecaster user guide
+├── notebooks/                           # exploratory only — pipeline must not depend on these
+└── outputs/
+    ├── figures/
+    ├── verification_report/
+    └── alerts_log/
 ```
 
-## 7. Task list (do in this order; each is independently checkable)
+## 7. Task list
 
-Each task specifies **Inputs → Outputs → Done when**. Do not mark a task
-complete unless "Done when" is satisfied.
+Same input/output contract discipline as before: every task states
+**Inputs → Outputs → Done when**. Full assignment to people is in
+[TEAM_SPLIT.md](TEAM_SPLIT.md); this list is the technical breakdown.
 
-### Task 0 — Confirm data access and finalize domain/season
-- **Inputs**: Section 5 data plan, Section 9 access questions.
-- **Outputs**: a short `data/ACCESS_NOTES.md` stating exactly which sources
-  are used (preferred or fallback) and the final chosen domain + season.
-- **Done when**: every data need in Section 5 has a named, confirmed-
-  accessible source, and the domain/season is fixed (not "TBD").
-- **Blocking**: all later tasks depend on this. If access cannot be
-  confirmed autonomously, stop and ask the user rather than guessing.
+### Task 0 — Confirm data access & finalize domain/season/sources
+- **Outputs**: `data/ACCESS_NOTES.md` naming every source actually used
+  (primary or fallback, per Section 5), the two NWP sources chosen for
+  ensemble fusion, and the fixed domain/season(s).
+- **Done when**: no data need in Section 5 is unresolved.
 
-### Task 1 — Data ingestion
-- **Inputs**: sources confirmed in Task 0.
-- **Outputs**: raw files under `data/raw/` for NWP forecast, observed
-  rainfall, MSLP/OLR reanalysis, low-pressure-system track records, district
-  shapefile.
-- **Done when**: all five raw datasets are present locally, covering the
-  chosen domain and season, with a short manifest (source URL, download
-  date, license) recorded per file.
+### Task 1 — Multi-source ingestion
+- **Outputs**: raw files under `data/raw/` for both NWP sources, gridded +
+  station obs, reanalysis, satellite proxy, best-track (LPS + WD), district
+  shapefile, station metadata — each with a manifest (source, date,
+  license). Ingestion code structured so re-running it is idempotent
+  (safe to schedule later even though it's run manually now).
 
-### Task 2 — Preprocessing
-- **Inputs**: `data/raw/*`.
-- **Outputs**: `data/processed/` containing (a) NWP and obs regridded to a
-  common grid, (b) a daily feature table of regime indicators, (c) a
-  climatology reference for quantile mapping, (d) a per-date regime label
-  (one of the 4 classes in Section 3) derived from the low-pressure-system
-  track record and rainfall/MSLP anomaly rules.
-- **Done when**: every date in the chosen season has a regime label and a
-  complete feature row; no missing grid alignment between NWP and obs.
+### Task 2 — Preprocessing & multi-label regime labeling
+- **Outputs**: `data/processed/features_daily.csv` (dynamical +
+  thermodynamical + satellite-proxy features), `nwp_grid_<source>.nc` for
+  each NWP source, `obs_grid.nc`, `climatology.nc`, `station_obs.csv`, and
+  multi-label regime labels per date (`regime_labels.csv`: one row per
+  date, one probability/flag column per of the 6 classes).
 
-### Task 3 — Regime classifier
-- **Inputs**: `data/processed/` feature table + labels from Task 2.
-- **Outputs**: trained classifier (or documented rule-based fallback) under
-  `src/regime_classifier/`, plus a held-out evaluation (accuracy/confusion
-  matrix per class).
-- **Done when**: the model produces a regime label + confidence for any date
-  in the held-out period, and evaluation results are saved (not just
-  printed).
+### Task 3 — Regime classifier (multi-label) + explainability
+- **Outputs**: trained multi-label classifier, per-prediction SHAP
+  attribution, `regime_predictions.csv` (per-label probabilities +
+  confidence), `EVAL.md` (per-label precision/recall/confusion behavior).
 
-### Task 4 — Regime-conditioned bias correction
-- **Inputs**: Task 3 regime labels, `data/processed/` NWP + obs.
-- **Outputs**: per-regime (or regime-as-feature fallback, per Section 4)
-  correction model(s) under `src/bias_correction/`, and a corrected rainfall
-  grid for the held-out period.
-- **Done when**: corrected forecast exists for every held-out grid-day, and
-  it is measurably closer to observations than the raw forecast on at least
-  the primary metric (RMSE) — if it is not, that is itself a valid finding
-  to report, not a reason to hide the result.
+### Task 4 — Ensemble fusion + regime-conditioned bias correction
+- **Outputs**: `ensemble_grid.nc` (fused NWP), `corrected_grid.nc`
+  (post-correction), method-choice log per regime (quantile mapping vs. ML),
+  `analog_correction.nc` (independent analog-based estimate) — all keyed by
+  date/lat/lon.
 
-### Task 5 — Heavy rainfall probability
-- **Inputs**: corrected forecast from Task 4, regime labels from Task 3.
-- **Outputs**: per grid cell/day, P(rain ≥ 64.5mm) and P(rain ≥ 115.5mm),
-  under `src/heavy_rain_prob/`.
-- **Done when**: probabilities are produced for every held-out grid-day and
-  are between 0 and 1 (sanity-checked), with a brief calibration check
-  (e.g. reliability diagram or binned observed frequency vs. predicted
-  probability).
+### Task 5 — Heavy rain probability + uncertainty quantification
+- **Outputs**: `heavy_rain_prob.nc` with `p_heavy`, `p_very_heavy`, and
+  uncertainty bounds (e.g. `p_heavy_lower`, `p_heavy_upper`), plus a
+  calibration/reliability check artifact.
 
-### Task 6 — District aggregation
-- **Inputs**: corrected forecast (Task 4), heavy-rain probability (Task 5),
-  district shapefile (Task 1).
-- **Outputs**: `outputs/district_table.csv` with columns: district name,
-  date, corrected rainfall, rainfall category, P(heavy), P(very heavy).
-  Optional: a simple choropleth map image in `outputs/figures/`.
-- **Done when**: every district in the chosen domain has a row for every
-  date in the held-out period, with no unmapped/missing districts.
+### Task 6 — District & station aggregation
+- **Outputs**: `outputs/district_table.csv` and `outputs/station_table.csv`
+  with rainfall, category, probability + uncertainty, regime label(s) and
+  confidence.
 
-### Task 7 — Verification report
-- **Inputs**: raw NWP, corrected forecast (Task 4), observations, regime
-  labels (Task 3).
-- **Outputs**: `outputs/verification_report/` containing RMSE, ETS, CSI,
-  POD, FAR computed for raw vs. corrected, split by regime and by rain
-  threshold; FSS included only if implemented (state explicitly if omitted).
-- **Done when**: the report shows a like-for-like raw-vs-corrected
-  comparison per regime per metric, in a table any reader can interpret
-  without reading the code.
+### Task 7 — Full verification suite
+- **Outputs**: `outputs/verification_report/` with RMSE, ETS, CSI, POD, FAR,
+  multi-scale FSS, reliability diagrams — for raw vs. ensemble-blended vs.
+  corrected, split by regime and threshold.
 
-### Task 8 — Presentation layer
-- **Inputs**: `outputs/district_table.csv`, `outputs/verification_report/`.
-- **Outputs**: a single static HTML page or simple Streamlit app showing the
-  district table/map and a summary of verification results.
-- **Done when**: it runs locally with one command and requires no manual
-  data wrangling.
+### Task 8 — API service
+- **Outputs**: `api/` exposing endpoints for regime classification,
+  corrected forecast, heavy-rain probability, district/station products,
+  and verification summaries.
 
-### Task 9 — End-to-end integration
-- **Inputs**: Tasks 1–8.
-- **Outputs**: `run_pipeline.py` that runs Tasks 1–8 in sequence on the
-  packaged sample dataset, plus `README.md` documenting how to run it, what
-  data sources were actually used (vs. the preferred ones in Section 5), and
-  known limitations.
-- **Done when**: a fresh clone can run `run_pipeline.py` and reproduce
-  `outputs/` from the packaged sample data alone.
+### Task 9 — Dashboard
+- **Outputs**: `dashboard/` app consuming the API: map/table view, regime
+  explanation panel, skill/verification view, historical regime climatology
+  explorer, raw-vs-corrected comparison.
 
-## 8. Deliverables checklist (maps directly to the problem statement's
-   "Expected Outcome")
+### Task 10 — Alerting layer
+- **Outputs**: `src/alerts/` rule engine (threshold + confidence-based
+  alert generation), `outputs/alerts_log/`, and a pluggable delivery
+  interface (mocked channel implementation — see Section 2.2).
 
-- [ ] Weather regime classifier (Task 3)
-- [ ] Bias-corrected rainfall forecast (Task 4)
-- [ ] Heavy rainfall probability (Task 5)
-- [ ] District-level rainfall product (Task 6)
-- [ ] Verification report: RMSE, ETS, CSI, POD, FAR, FSS-if-feasible (Task 7)
-- [ ] End-to-end reproducible pipeline (Task 9)
-- [ ] README with data-source and limitation disclosures (Task 9)
+### Task 11 — MLOps: feedback, drift monitoring, retraining, registry
+- **Outputs**: forecaster feedback capture format, drift-monitoring checks
+  on features/skill, a retraining pipeline that produces a new versioned
+  model in the model registry, rollback capability.
+
+### Task 12 — Testing, CI, containerization, documentation
+- **Outputs**: `tests/unit/`, `tests/integration/` (full pipeline on a
+  fixture dataset), `infra/ci/` pipeline definition, `infra/docker/`
+  container setup, `docs/` (architecture, API reference, user guide),
+  final `README.md`, `run_pipeline.py` tying the batch path together end to
+  end.
+
+## 8. Deliverables checklist (Expected Outcome + innovations)
+
+- [ ] Multi-label weather regime classifier with explainability (Task 3)
+- [ ] Multi-model ensemble fusion (Task 4)
+- [ ] Regime-conditioned bias correction, ML + quantile-mapping + analog
+      pathways (Task 4)
+- [ ] Calibrated heavy-rain probability with uncertainty bounds (Task 5)
+- [ ] District- and station-level rainfall products (Task 6)
+- [ ] Full verification suite incl. multi-scale FSS and reliability (Task 7)
+- [ ] API service (Task 8)
+- [ ] Interactive dashboard with regime explanation and climatology explorer
+      (Task 9)
+- [ ] Heavy-rain alerting layer (Task 10)
+- [ ] Feedback + drift monitoring + retraining/model registry (Task 11)
+- [ ] Tests, CI, Docker, full documentation (Task 12)
 
 ## 9. Research / reference sources needed
 
-Use this section to fill knowledge gaps before/while doing Tasks 0–7.
-Grouped by what each is needed for.
+### 9.1 Domain background
+- IMD/IITM active-break monsoon criteria (Rajeevan et al.; IITM monsoon
+  monographs).
+- IMD cyclone/depression e-atlas and best-track documentation.
+- Western disturbance climatology and detection literature.
+- Orographic (Western Ghats/NE hills) and coastal convergence rainfall
+  mechanism literature.
+- NCMRWF public technical reports on rainfall forecast bias/post-processing.
 
-### 9.1 Domain background (regime definitions, physical indices)
-- IMD/IITM literature on active vs. break monsoon definitions (e.g. Rajeevan
-  et al. active-break criteria; IITM monsoon monograph series) — needed for
-  Task 2 labeling rules.
-- IMD cyclone/depression e-atlas and best-track documentation — needed for
-  Task 2 `low_depression` labeling.
-- Literature on western disturbance climatology — only needed if that
-  regime stays in scope for the chosen season (currently folded into
-  `other`, see Section 3).
-- Reference material on orographic (Western Ghats/NE hills) and coastal
-  convergence rainfall mechanisms — supports the `other` class definition
-  and README justification.
-- NCMRWF's own public technical reports on rainfall forecast bias/post-
-  processing, if available — helps align terminology with the sponsoring
-  department's expectations.
+### 9.2 Datasets
+- IMD gridded rainfall (0.25° daily) — access/registration/license.
+- NCMRWF/IMD NWP archives, plus a second NWP source (ECMWF open data or
+  NOAA GFS) for ensemble fusion.
+- IMD/RSMC New Delhi best-track archive (LPS + depressions).
+- IMD WD advisories / published WD climatology.
+- ERA5/NOAA OLR reanalysis; INSAT brightness temperature if accessible.
+- IMD radar mosaic availability (for optional short-lead-time products).
+- District boundary shapefile + IMD station metadata.
+- IMD's official rainfall category thresholds (heavy ≥64.5mm, very heavy
+  ≥115.5mm, extremely heavy ≥204.5mm per 24h) — used verbatim, not invented.
 
-### 9.2 Datasets (see also Section 5 table)
-- IMD gridded rainfall data — portal, registration requirements, license.
-- NCMRWF/IMD NWP output archives — what's public vs. what needs a data-
-  sharing request.
-- IMD/RSMC New Delhi best-track archive — for depression date labeling.
-- ERA5 / NOAA OLR reanalysis — for MSLP/OLR indicator features.
-- District boundary shapefile — source and currency check (district
-  reorganizations may have occurred since the shapefile was published).
-- IMD's official rainfall category thresholds (light/moderate/heavy≥64.5mm/
-  very heavy≥115.5mm/extremely heavy≥204.5mm per 24h) — must match exactly
-  in Task 5, not use an invented cutoff.
+### 9.3 Methods
+- Standard verification formulas: RMSE, ETS, CSI, POD, FAR, FSS (multi-
+  scale), reliability diagrams — WMO/WWRP guidance, Jolliffe & Stephenson.
+- Quantile mapping and statistical precipitation bias-correction literature.
+- Analog forecasting / analog-based post-processing literature.
+- Regime-dependent/regime-conditioned post-processing precedent (search:
+  "weather regime conditioned bias correction," "analog-based post-
+  processing," "regime-dependent MOS precipitation").
+- Multi-model ensemble blending/weighting methods for precipitation.
+- Explainable ML for weather/climate applications (SHAP for tree models).
+- Quantile regression / ensemble-spread approaches for forecast uncertainty.
 
-### 9.3 Methods (verification metrics, bias-correction techniques)
-- Standard formulas for RMSE, ETS, CSI, POD, FAR, FSS — e.g. WMO/WWRP
-  forecast verification guidance, Jolliffe & Stephenson's "Forecast
-  Verification" — needed for Task 7 to match community-standard
-  definitions.
-- Literature on quantile mapping and other statistical precipitation bias-
-  correction methods — needed to justify the Task 4 method choice.
-- Prior work on regime-dependent/regime-conditioned post-processing of
-  precipitation forecasts (search: "weather regime conditioned bias
-  correction," "analog-based post-processing," "regime-dependent MOS
-  precipitation") — establishes precedent for the overall approach, useful
-  for the README/report's justification section.
+### 9.4 Access/licensing checks (Task 0)
+- Confirm institutional vs. open access for every IMD dataset; record every
+  fallback substitution explicitly in README.md.
 
-### 9.4 Access/licensing checks (resolve as part of Task 0)
-- Determine which IMD datasets require institutional login/paid access vs.
-  open access. If the "preferred" source in Section 5 is inaccessible, use
-  the listed fallback and state the substitution explicitly in README.md —
-  never silently swap a data source without recording it.
+## 10. Definition of done
 
-## 10. Definition of done for the whole prototype
-
-The prototype is complete when: Section 8's checklist is fully checked,
-`run_pipeline.py` reproduces all outputs from packaged sample data in one
-command, and `README.md` accurately discloses every place a fallback/proxy
-data source or simplifying assumption was used instead of the ideal one.
+The system is complete when every item in Section 8 is checked, the batch
+pipeline (`run_pipeline.py`) reproduces all outputs from the fixed sample
+dataset in one command, the API and dashboard both run locally against that
+output, `tests/` pass in CI, and `README.md`/`docs/` fully disclose every
+fallback data source, every place a method defaulted (e.g. quantile mapping
+instead of ML correction) due to data sparsity, and every deferred item from
+Section 2.2.
