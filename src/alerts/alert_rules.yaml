@@ -1,0 +1,45 @@
+# Alert rules configuration
+# Modify thresholds and conditions here without touching code.
+
+rules:
+  - name: heavy_rain_high_confidence
+    description: "District has heavy rain probability >= 0.6 with regime confidence >= 0.5"
+    conditions:
+      p_heavy_min: 0.6
+      regime_confidence_min: 0.5
+    severity: WARNING
+    message_template: >
+      WARNING: {district_name} has {p_heavy:.0%} probability of heavy
+      rainfall (>= 64.5mm) on {date}. Regime: {dominant_regime}
+      (confidence: {regime_confidence:.0%}).
+
+  - name: very_heavy_rain_alert
+    description: "District has very heavy rain probability >= 0.4 with any confidence"
+    conditions:
+      p_very_heavy_min: 0.4
+      regime_confidence_min: 0.0
+    severity: ALERT
+    message_template: >
+      ALERT: {district_name} has {p_very_heavy:.0%} probability of very
+      heavy rainfall (>= 115.5mm) on {date}. Regime: {dominant_regime}.
+
+  - name: high_rainfall_observed
+    description: "Corrected forecast exceeds heavy threshold with high confidence"
+    conditions:
+      corrected_rainfall_min_mm: 64.5
+      regime_confidence_min: 0.4
+    severity: WARNING
+    message_template: >
+      WARNING: {district_name} corrected forecast is
+      {corrected_rainfall_mm:.1f}mm on {date} (category: {rainfall_category}).
+      Regime: {dominant_regime}.
+
+  - name: extreme_rainfall_alert
+    description: "Corrected forecast exceeds extremely heavy threshold"
+    conditions:
+      corrected_rainfall_min_mm: 204.5
+    severity: CRITICAL
+    message_template: >
+      CRITICAL: {district_name} corrected forecast is
+      {corrected_rainfall_mm:.1f}mm (EXTREMELY HEAVY) on {date}.
+      Regime: {dominant_regime}. Immediate attention required.
