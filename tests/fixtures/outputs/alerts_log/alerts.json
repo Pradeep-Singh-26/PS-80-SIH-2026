@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2026-09-22T22:24:42.070797",
+    "timestamp": "2026-09-22T22:47:40.983124",
     "rule_name": "high_rainfall_observed",
     "severity": "WARNING",
     "district_name": "Pune",
@@ -14,7 +14,7 @@
     "message": "WARNING: Pune corrected forecast is 82.9mm on 2024-06-07 (category: heavy). Regime: orographic."
   },
   {
-    "timestamp": "2026-09-22T22:24:42.072309",
+    "timestamp": "2026-09-22T22:47:40.983736",
     "rule_name": "heavy_rain_high_confidence",
     "severity": "WARNING",
     "district_name": "Pune",
@@ -28,7 +28,7 @@
     "message": "WARNING: Pune has 63% probability of heavy rainfall (>= 64.5mm) on 2024-06-21. Regime: low_depression (confidence: 57%)."
   },
   {
-    "timestamp": "2026-09-22T22:24:42.076422",
+    "timestamp": "2026-09-22T22:47:40.985298",
     "rule_name": "high_rainfall_observed",
     "severity": "WARNING",
     "district_name": "Bhopal",
@@ -42,7 +42,7 @@
     "message": "WARNING: Bhopal corrected forecast is 98.1mm on 2024-06-03 (category: heavy). Regime: orographic."
   },
   {
-    "timestamp": "2026-09-22T22:24:42.078019",
+    "timestamp": "2026-09-22T22:47:40.985298",
     "rule_name": "high_rainfall_observed",
     "severity": "WARNING",
     "district_name": "Bhopal",
@@ -56,7 +56,7 @@
     "message": "WARNING: Bhopal corrected forecast is 71.1mm on 2024-06-18 (category: heavy). Regime: orographic."
   },
   {
-    "timestamp": "2026-09-22T22:24:42.078019",
+    "timestamp": "2026-09-22T22:47:40.985298",
     "rule_name": "high_rainfall_observed",
     "severity": "WARNING",
     "district_name": "Bhopal",
@@ -70,7 +70,7 @@
     "message": "WARNING: Bhopal corrected forecast is 68.7mm on 2024-06-21 (category: heavy). Regime: low_depression."
   },
   {
-    "timestamp": "2026-09-22T22:24:42.079032",
+    "timestamp": "2026-09-22T22:47:40.986338",
     "rule_name": "high_rainfall_observed",
     "severity": "WARNING",
     "district_name": "Indore",
@@ -84,7 +84,7 @@
     "message": "WARNING: Indore corrected forecast is 66.9mm on 2024-06-07 (category: heavy). Regime: orographic."
   },
   {
-    "timestamp": "2026-09-22T22:24:42.079032",
+    "timestamp": "2026-09-22T22:47:40.986338",
     "rule_name": "high_rainfall_observed",
     "severity": "WARNING",
     "district_name": "Indore",
