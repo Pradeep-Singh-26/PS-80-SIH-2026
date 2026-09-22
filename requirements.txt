@@ -1,0 +1,26 @@
+# Shared dependencies for the prototype. Add to the relevant section only —
+# do not reorganize this file without updating TEAM_SPLIT.md.
+
+# Core
+numpy
+pandas
+xarray
+netCDF4
+scipy
+
+# Track A (Pradeep) — data/ingest/preprocess
+cdsapi          # ERA5 access
+geopandas
+rasterio
+regionmask
+
+# Track B (Baljeet) — modeling
+scikit-learn
+xgboost
+lightgbm
+
+# Track C (Divyansh) — aggregation/verification/presentation
+matplotlib
+folium
+streamlit
+jinja2
