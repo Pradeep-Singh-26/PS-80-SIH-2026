@@ -144,6 +144,9 @@ class AnalogSearchEngine:
         target_regime_clean = str(target_regime).lower().strip()
         target_vec = self.processor.transform_vector(target_dict)
 
+        fallback_used = False
+        fallback_reason = "normal_match"
+
         # 1. Candidate selection with strict leakage prevention
         candidates = []
         for item in self.historical_pool:
@@ -158,15 +161,21 @@ class AnalogSearchEngine:
 
             candidates.append(item)
 
-        # Fallback if chronological candidate pool is empty or too small (e.g. at beginning of season)
-        fallback_used = False
-        fallback_reason = "normal_match"
-
         if len(candidates) == 0:
-            # Fallback to leave-one-out candidate pool
-            fallback_used = True
-            fallback_reason = "no_prior_history_fallback_to_leave_one_out"
-            candidates = [c for c in self.historical_pool if c["date"] != target_date_str]
+            if self.mode == "strict_chronological":
+                return {
+                    "analog_dates": [],
+                    "analog_regimes": [],
+                    "distances": [],
+                    "weights": [],
+                    "fallback_used": True,
+                    "message": "no_prior_history_no_correction",
+                }
+            else:
+                # In leave_one_out mode, fallback to all non-target dates
+                fallback_used = True
+                fallback_reason = "no_prior_history_fallback_to_leave_one_out"
+                candidates = [c for c in self.historical_pool if c["date"] != target_date_str]
 
         if len(candidates) == 0:
             # Empty candidate database entirely
