@@ -7,6 +7,11 @@ from .feedback_validator import (
     append_feedback_record,
     validate_feedback_record,
 )
+from .retrain import (
+    evaluate_promotion_policy,
+    load_and_validate_approved_feedback,
+    run_retraining_pipeline,
+)
 
 __all__ = [
     "ALLOWED_ASSESSMENTS",
@@ -14,4 +19,7 @@ __all__ = [
     "FEEDBACK_COLUMNS",
     "append_feedback_record",
     "validate_feedback_record",
+    "evaluate_promotion_policy",
+    "load_and_validate_approved_feedback",
+    "run_retraining_pipeline",
 ]
