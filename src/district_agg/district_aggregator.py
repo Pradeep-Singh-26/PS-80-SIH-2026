@@ -57,11 +57,6 @@ def _load_district_polygons() -> list[dict]:
 
     # Try GeoJSON first (fixture / lightweight format)
     geojson_path = shapefile_dir / "districts.geojson"
-    if not geojson_path.exists():
-        fallback_path = Path(__file__).resolve().parent.parent.parent / "tests" / "fixtures" / "district_shapefile" / "districts.geojson"
-        if fallback_path.exists():
-            geojson_path = fallback_path
-
     if geojson_path.exists():
         with open(geojson_path, "r", encoding="utf-8") as f:
             gj = json.load(f)

@@ -1,9 +1,10 @@
 """IMD Station Observations Ingest Module (Track A - Station Obs)."""
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
-from ..base import BaseIngestor
+import pandas as pd
+from ..base import BaseIngestor, ManifestManager
 
 logger = logging.getLogger(__name__)
 

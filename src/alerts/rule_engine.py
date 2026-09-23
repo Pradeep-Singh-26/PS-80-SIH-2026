@@ -5,6 +5,7 @@ alert_rules.yaml, generates alert records, logs them to
 outputs/alerts_log/, and dispatches through pluggable delivery channels.
 """
 
+import csv
 import json
 from datetime import datetime
 from pathlib import Path

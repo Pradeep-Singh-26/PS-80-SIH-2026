@@ -10,6 +10,7 @@ For dev with fixture data:
     CONFIG_PATH=config.test.yaml streamlit run dashboard/web/app.py
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -20,11 +21,14 @@ import pandas as pd
 _ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_ROOT))
 
-from api.data_loader import (  # noqa: E402
+from api.data_loader import (
     load_district_table,
     load_station_table,
     load_regime_predictions,
     load_verification_summary,
+    load_alerts,
+    load_fss_scores,
+    load_reliability_data,
     load_regime_summary,
 )
 

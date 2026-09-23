@@ -19,39 +19,23 @@ from src.district_agg.district_aggregator import _classify_rainfall
 def _load_station_metadata() -> list[dict]:
     """Load station metadata (station_id, lat, lon).
 
-    Supports station_metadata.json or station_metadata.csv from raw or fixture dirs.
+    Tries station_metadata.json in the shapefile dir, then falls back
+    to the fixture location.
     """
     shapefile_dir = get_path("data.district_shapefile")
-    raw_dir = shapefile_dir.parent
-    project_root = Path(__file__).resolve().parent.parent.parent
-    fixture_dir = project_root / "tests" / "fixtures"
-
-    # 1. Try station_metadata.json
-    for search_dir in [shapefile_dir, raw_dir, fixture_dir]:
-        json_file = search_dir / "station_metadata.json"
-        if json_file.exists():
-            with open(json_file, "r", encoding="utf-8") as f:
-                return json.load(f)
-
-    # 2. Try station_metadata.csv
-    for search_dir in [raw_dir, shapefile_dir, fixture_dir]:
-        csv_file = search_dir / "station_metadata.csv"
-        if csv_file.exists():
-            df = pd.read_csv(csv_file)
-            lat_col = "latitude" if "latitude" in df.columns else "lat"
-            lon_col = "longitude" if "longitude" in df.columns else "lon"
-            stations = []
-            for _, r in df.iterrows():
-                stations.append({
-                    "station_id": str(r["station_id"]),
-                    "lat": float(r[lat_col]),
-                    "lon": float(r[lon_col]),
-                })
-            return stations
-
-    raise FileNotFoundError(
-        "station_metadata file not found. Expected station_metadata.json or station_metadata.csv."
-    )
+    meta_path = shapefile_dir.parent / "station_metadata.json"
+    if not meta_path.exists():
+        # Fixture location
+        meta_path = shapefile_dir.parent / "station_metadata.json"
+    if not meta_path.exists():
+        # Try alongside fixtures
+        meta_path = Path(get_path("data.regime_predictions")).parent / "station_metadata.json"
+    if not meta_path.exists():
+        raise FileNotFoundError(
+            "station_metadata.json not found. Expected near the district shapefile dir."
+        )
+    with open(meta_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def _nearest_grid_idx(target: float, grid: np.ndarray) -> int:

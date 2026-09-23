@@ -1,9 +1,10 @@
 """IMD Gridded Daily Rainfall Ingest Module (Track A - Gridded Obs)."""
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
-from ..base import BaseIngestor
+import xarray as xr
+from ..base import BaseIngestor, ManifestManager
 
 logger = logging.getLogger(__name__)
 

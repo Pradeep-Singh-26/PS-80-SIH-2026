@@ -10,7 +10,7 @@ Applies the trained multi-label classifier to features_daily.csv to produce:
 import logging
 from pathlib import Path
 import pandas as pd
-from .config import REGIME_CLASSES
+from .config import REGIME_CLASSES, FEATURE_COLUMNS
 from .model import MultiLabelRegimeClassifier
 
 logger = logging.getLogger(__name__)

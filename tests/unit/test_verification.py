@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 os.environ["CONFIG_PATH"] = str(ROOT / "config.test.yaml")
 
-from src.verification.metrics import (  # noqa: E402
+from src.verification.metrics import (
     rmse,
     bias,
     mae,

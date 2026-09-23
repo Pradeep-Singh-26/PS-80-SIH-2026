@@ -7,10 +7,11 @@ Contract schema: date, feature, attribution_value
 
 import logging
 from pathlib import Path
+from typing import Dict, Optional
 import numpy as np
 import pandas as pd
 
-from ..regime_classifier.config import FEATURE_COLUMNS
+from ..regime_classifier.config import FEATURE_COLUMNS, REGIME_CLASSES
 from ..regime_classifier.model import MultiLabelRegimeClassifier
 from .common import format_attribution_dataframe
 

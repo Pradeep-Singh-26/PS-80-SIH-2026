@@ -1,16 +1,18 @@
 """Unit tests for the FastAPI service."""
 
+import json
 import os
 import sys
 from pathlib import Path
 
+import pytest
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 os.environ["CONFIG_PATH"] = str(ROOT / "config.test.yaml")
 
-from fastapi.testclient import TestClient  # noqa: E402
-from api.main import app  # noqa: E402
+from fastapi.testclient import TestClient
+from api.main import app
 
 client = TestClient(app)
 

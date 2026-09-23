@@ -1,7 +1,7 @@
 """IMD Best-Track (LPS/Depressions) and Western Disturbance Event Ingest (Track A)."""
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
 from ..base import BaseIngestor
 

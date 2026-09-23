@@ -1,9 +1,9 @@
 """Satellite Convective Proxy / OLR Ingest Module (Track A)."""
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
-from ..base import BaseIngestor
+from ..base import BaseIngestor, ManifestManager
 
 logger = logging.getLogger(__name__)
 

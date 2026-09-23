@@ -11,6 +11,7 @@ For dev with fixture data:
     CONFIG_PATH=config.test.yaml uvicorn api.main:app --reload
 """
 
+import os
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
@@ -24,6 +25,7 @@ from api.schemas import (
     HealthResponse,
     RegimeResponse,
     StationRow,
+    VerificationSummary,
 )
 from api.data_loader import (
     load_alerts,
@@ -271,8 +273,7 @@ def submit_feedback(feedback: FeedbackRequest):
     Feedback is stored using Track B's feedback schema so it can be
     consumed for retraining.
     """
-    fb_data = feedback.model_dump() if hasattr(feedback, "model_dump") else feedback.dict()
-    feedback_id = save_feedback(fb_data)
+    feedback_id = save_feedback(feedback.dict())
     return FeedbackResponse(
         status="accepted",
         feedback_id=feedback_id,

@@ -4,7 +4,8 @@ Defines all schemas used by the API endpoints so responses are
 validated and self-documenting via OpenAPI/Swagger.
 """
 
-from typing import Optional
+from datetime import date as DateType
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 

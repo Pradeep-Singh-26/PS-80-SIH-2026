@@ -21,7 +21,7 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 
-from .config import TEST_YEARS, REGIME_CLASSES
+from .config import TEST_YEARS, REGIME_CLASSES, FEATURE_COLUMNS
 from .model import MultiLabelRegimeClassifier
 
 logger = logging.getLogger(__name__)

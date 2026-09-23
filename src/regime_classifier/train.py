@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 import pandas as pd
-from .config import TRAIN_YEARS
+from .config import TRAIN_YEARS, REGIME_CLASSES, FEATURE_COLUMNS
 from .model import MultiLabelRegimeClassifier
 
 logger = logging.getLogger(__name__)

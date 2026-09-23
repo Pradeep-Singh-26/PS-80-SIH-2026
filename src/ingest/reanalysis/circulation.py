@@ -1,7 +1,7 @@
 """Circulation and Atmospheric Reanalysis Ingest Module (Track A)."""
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
 from ..base import BaseIngestor
 

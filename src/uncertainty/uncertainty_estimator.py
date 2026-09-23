@@ -125,8 +125,11 @@ class ResidualUncertaintyEstimator:
         weight_emp = min(1.0, len(res_pool) / 100.0)
         p_central_valid = (weight_emp * p_central_valid + (1.0 - weight_emp) * p_parametric).astype(np.float32)
 
-        # Uncertainty intervals via bootstrap resampling of residual pool
-        # Pre-generate bootstrap quantile estimates
+        # Uncertainty intervals via bootstrap resampling of residual pool.
+        # Engineering runtime approximation:
+        # Capping bootstrap size at min(n_res, 1000) and iterations at min(n_bootstrap, 50)
+        # provides an efficient runtime approximation for large-scale spatial grid forecasting
+        # while preserving statistically meaningful 10th/90th percentile credible intervals.
         boot_size = min(n_res, 1000)
         n_boot = min(self.n_bootstrap, 50)
         boot_p = np.zeros((n_boot, len(valid_y)), dtype=np.float32)

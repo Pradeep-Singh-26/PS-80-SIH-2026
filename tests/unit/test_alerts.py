@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent.parent

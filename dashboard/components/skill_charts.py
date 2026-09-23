@@ -27,6 +27,9 @@ def render_skill_view():
 
     # Pick key columns
     key_cols = ["source", "n_points", "rmse", "bias", "mae"]
+    threshold_cols = [c for c in v_df.columns if any(
+        c.endswith(s) for s in ["_pod", "_far", "_csi", "_ets"]
+    )]
     available = [c for c in key_cols if c in v_df.columns]
 
     st.dataframe(

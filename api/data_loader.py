@@ -9,6 +9,8 @@ update config.yaml with real paths, the API automatically picks them up.
 """
 
 import json
+from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 

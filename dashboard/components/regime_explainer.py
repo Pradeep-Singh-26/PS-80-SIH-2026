@@ -63,6 +63,7 @@ def render_regime_panel(regime_df: pd.DataFrame):
 
     # Probability bars for all regimes
     st.subheader("All Regime Probabilities")
+    prob_cols = [f"{r}_prob" for r in REGIME_LABELS]
     available_probs = {r: row.get(f"{r}_prob", 0) for r in REGIME_LABELS}
 
     for regime, prob in sorted(available_probs.items(), key=lambda x: -x[1]):

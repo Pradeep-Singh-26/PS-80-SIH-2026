@@ -1,9 +1,10 @@
 """NOAA GFS Archive Ingest Module (Track A - NWP Source 1)."""
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
-from ..base import BaseIngestor
+import xarray as xr
+from ..base import BaseIngestor, ManifestManager
 
 logger = logging.getLogger(__name__)
 
