@@ -1,7 +1,7 @@
-"""Track B (Baljeet): Regime-conditioned bias correction and ensemble fusion.
+"""Track B (Baljeet): Regime-conditioned bias correction, ensemble fusion, and analog correction.
 
 Tasks owned:
-- Task 4: Multi-NWP ensemble blending and regime-conditioned bias correction (QM + ML + Router).
+- Task 4: Multi-NWP ensemble blending, regime-conditioned bias correction (QM + ML + Router), and analog correction.
 
 Contracts consumed:
 - data/processed/ensemble_grid.nc (or nwp_grid_gfs.nc / nwp_grid_ecmwf.nc)
@@ -14,8 +14,11 @@ Contracts produced:
 - data/processed/ensemble_grid.nc
 - data/processed/corrected_grid.nc
 - data/processed/correction_method_log.csv
+- data/processed/analog_correction.nc
+- data/processed/analog_match_log.csv
 """
 
+from .analog import AnalogBiasCorrector, AnalogSearchEngine, run_analog_correction_pipeline
 from .bias_corrector import run_bias_correction_pipeline
 from .ml_correction import MLGradientBoostedCorrector
 from .quantile_mapping import EmpiricalQuantileMapper, RegimeConditionedQuantileMapper
@@ -23,8 +26,11 @@ from .router import RegimeBiasCorrectionRouter
 
 __all__ = [
     "run_bias_correction_pipeline",
+    "run_analog_correction_pipeline",
     "EmpiricalQuantileMapper",
     "RegimeConditionedQuantileMapper",
     "MLGradientBoostedCorrector",
     "RegimeBiasCorrectionRouter",
+    "AnalogBiasCorrector",
+    "AnalogSearchEngine",
 ]
