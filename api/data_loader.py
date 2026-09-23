@@ -155,3 +155,39 @@ def save_feedback(feedback: dict) -> str:
         f.write(json.dumps(record, default=str) + "\n")
 
     return feedback_id
+
+
+def load_cartodem_info() -> dict:
+    """Load CartoDEM topography summary and key status."""
+    import os
+    from src.config import get_config, get_root_dir
+
+    cfg = get_config()
+    carto_cfg = cfg.get("cartodem", {})
+    key = os.environ.get("CARTODEM_API_KEY") or carto_cfg.get("api_key", "")
+    masked_key = f"{key[:7]}...{key[-4:]}" if len(key) >= 11 else "***"
+
+    root = get_root_dir()
+    meta_path = root / "data" / "raw" / "topography" / "cartodem_metadata.json"
+    meta = {}
+    if meta_path.exists():
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+        except Exception:
+            pass
+
+    grid_file = root / "data" / "processed" / "cartodem_grid.nc"
+    if not grid_file.exists():
+        grid_file = root / "tests" / "fixtures" / "cartodem_grid.nc"
+
+    return {
+        "status": "ready" if meta or grid_file.exists() else "configured",
+        "source": "ISRO / NRSC Bhuvan CartoDEM (1 arc-second DEM)",
+        "api_key_configured": bool(key),
+        "api_key_masked": masked_key,
+        "cartodem_key": key,
+        "grid_available": grid_file.exists(),
+        "metadata": meta,
+    }
+

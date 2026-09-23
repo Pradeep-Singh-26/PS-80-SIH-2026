@@ -36,11 +36,19 @@ from pathlib import Path
 def run():
     """Execute Track B probability estimation, UQ, and calibration verification pipeline."""
     project_root = Path(__file__).resolve().parent.parent.parent
-    processed_dir = project_root / "data" / "processed"
-    corrected_path = processed_dir / "corrected_grid.nc"
-    obs_path = processed_dir / "obs_grid.nc"
-    regime_preds_path = processed_dir / "regime_predictions.csv"
-    heavy_prob_path = processed_dir / "heavy_rain_prob.nc"
+    try:
+        from src.config import get_path
+        corrected_path = get_path("data.corrected_grid")
+        obs_path = get_path("data.obs_grid")
+        regime_preds_path = get_path("data.regime_predictions")
+        heavy_prob_path = get_path("data.heavy_rain_prob")
+        processed_dir = heavy_prob_path.parent
+    except Exception:
+        processed_dir = project_root / "data" / "processed"
+        corrected_path = processed_dir / "corrected_grid.nc"
+        obs_path = processed_dir / "obs_grid.nc"
+        regime_preds_path = processed_dir / "regime_predictions.csv"
+        heavy_prob_path = processed_dir / "heavy_rain_prob.nc"
     calib_md_path = project_root / "src" / "heavy_rain_prob" / "CALIBRATION.md"
 
     # Step 1: Probability estimation + UQ

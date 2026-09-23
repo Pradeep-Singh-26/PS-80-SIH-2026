@@ -27,22 +27,22 @@
 - ETS: 0.000
 
 ### ensemble
-- **RMSE**: 33.98 mm
-- **Bias**: 5.22 mm
-- **MAE**: 25.63 mm
+- **RMSE**: 29.51 mm
+- **Bias**: 7.06 mm
+- **MAE**: 22.77 mm
 - **N points**: 1440
 
 #### Threshold: heavy (>= 64.5 mm)
-- POD: 0.190
-- FAR: 0.885
-- CSI: 0.077
-- ETS: 0.003
+- POD: 0.165
+- FAR: 0.884
+- CSI: 0.073
+- ETS: 0.004
 
 #### Threshold: very_heavy (>= 115.5 mm)
 - POD: 0.000
 - FAR: 1.000
 - CSI: 0.000
-- ETS: -0.007
+- ETS: -0.003
 
 #### Threshold: extremely_heavy (>= 204.5 mm)
 - POD: N/A
@@ -51,22 +51,22 @@
 - ETS: N/A
 
 ### corrected
-- **RMSE**: 31.41 mm
-- **Bias**: 0.90 mm
-- **MAE**: 23.65 mm
+- **RMSE**: 26.95 mm
+- **Bias**: -0.09 mm
+- **MAE**: 19.01 mm
 - **N points**: 1440
 
 #### Threshold: heavy (>= 64.5 mm)
-- POD: 0.171
-- FAR: 0.858
-- CSI: 0.084
-- ETS: 0.020
+- POD: 0.146
+- FAR: 0.824
+- CSI: 0.086
+- ETS: 0.034
 
 #### Threshold: very_heavy (>= 115.5 mm)
 - POD: 0.000
 - FAR: 1.000
 - CSI: 0.000
-- ETS: -0.005
+- ETS: -0.004
 
 #### Threshold: extremely_heavy (>= 204.5 mm)
 - POD: N/A

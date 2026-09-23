@@ -13,12 +13,18 @@ data:
   regime_labels: tests/fixtures/regime_labels.csv
   regime_predictions: tests/fixtures/regime_predictions.csv
   district_shapefile: tests/fixtures/district_shapefile/
+  cartodem_grid: tests/fixtures/cartodem_grid.nc
 
   ensemble_grid: tests/fixtures/ensemble_grid.nc
   corrected_grid: tests/fixtures/corrected_grid.nc
   correction_method_log: tests/fixtures/correction_method_log.csv
   analog_correction: tests/fixtures/analog_correction.nc
   heavy_rain_prob: tests/fixtures/heavy_rain_prob.nc
+
+cartodem:
+  api_key: "cb1_31ua_1_ab86827ad08256e283b46b25"
+  source: "ISRO / NRSC Bhuvan Open Data"
+  grid_path: "tests/fixtures/cartodem_grid.nc"
 
 outputs:
   district_table: tests/fixtures/outputs/district_table.csv

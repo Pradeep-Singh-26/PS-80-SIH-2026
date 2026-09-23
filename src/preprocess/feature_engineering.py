@@ -88,14 +88,35 @@ def compute_daily_features(
     satellite_proxy = (olr_vals <= 200.0).mean(axis=(1, 2))
 
     # 4. Orographic and Coastal Indices
-    # Western Ghats / Satpura terrain mask
+    # Use ISRO Bhuvan CartoDEM topography if available, else fallback
+    cartodem_file = processed_dir / "cartodem_grid.nc"
+    if not cartodem_file.exists():
+        cartodem_file = raw_dir / "topography" / "cartodem_raw.nc"
+
     lon_mesh, lat_mesh = np.meshgrid(lons, lats)
-    orog_mask = (
-        (((lat_mesh >= 18.0) & (lat_mesh <= 20.0) & (lon_mesh <= 75.5))) |
-        (((lat_mesh >= 21.5) & (lat_mesh <= 22.8) & (lon_mesh >= 77.0) & (lon_mesh <= 81.0)))
-    )
-    orog_rain_mean = obs_rain[:, orog_mask].mean(axis=1)
-    orographic_index = np.where(domain_obs_mean > 0.1, orog_rain_mean / np.maximum(domain_obs_mean, 0.5), 1.0)
+    if cartodem_file.exists():
+        try:
+            ds_dem = xr.open_dataset(cartodem_file)
+            dem_elev = ds_dem["elevation_m"].interp(lat=lats, lon=lons, method="nearest").values
+            orog_mask = dem_elev >= 500.0
+            logger.info("Using ISRO Bhuvan CartoDEM for orographic terrain masking.")
+        except Exception as e:
+            logger.warning(f"Could not load CartoDEM ({e}), using default terrain mask.")
+            orog_mask = (
+                (((lat_mesh >= 18.0) & (lat_mesh <= 20.0) & (lon_mesh <= 75.5))) |
+                (((lat_mesh >= 21.5) & (lat_mesh <= 22.8) & (lon_mesh >= 77.0) & (lon_mesh <= 81.0)))
+            )
+    else:
+        orog_mask = (
+            (((lat_mesh >= 18.0) & (lat_mesh <= 20.0) & (lon_mesh <= 75.5))) |
+            (((lat_mesh >= 21.5) & (lat_mesh <= 22.8) & (lon_mesh >= 77.0) & (lon_mesh <= 81.0)))
+        )
+
+    if np.any(orog_mask):
+        orog_rain_mean = obs_rain[:, orog_mask].mean(axis=1)
+        orographic_index = np.where(domain_obs_mean > 0.1, orog_rain_mean / np.maximum(domain_obs_mean, 0.5), 1.0)
+    else:
+        orographic_index = np.ones(n_dates, dtype=float)
 
     # Coastal mask
     coastal_mask = (lon_mesh <= 74.5) | (lon_mesh >= 85.0)
