@@ -21,6 +21,7 @@ data:
   regime_labels: data/processed/regime_labels.csv
   regime_predictions: data/processed/regime_predictions.csv
   district_shapefile: data/raw/district_shapefile/
+  cartodem_grid: data/processed/cartodem_grid.nc
 
   # Track B outputs
   ensemble_grid: data/processed/ensemble_grid.nc
@@ -28,6 +29,13 @@ data:
   correction_method_log: data/processed/correction_method_log.csv
   analog_correction: data/processed/analog_correction.nc
   heavy_rain_prob: data/processed/heavy_rain_prob.nc
+
+# ------ Topography / CartoDEM settings ------
+cartodem:
+  api_key: "cb1_31ua_1_ab86827ad08256e283b46b25"
+  source: "ISRO / NRSC Bhuvan Open Data"
+  raw_path: "data/raw/topography/cartodem_raw.nc"
+  processed_path: "data/processed/cartodem_grid.nc"
 
 # ------ Output paths (produced by Track C) ------
 outputs:

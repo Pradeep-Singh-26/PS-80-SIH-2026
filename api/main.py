@@ -37,6 +37,7 @@ from api.data_loader import (
     load_station_table,
     load_verification_summary,
     save_feedback,
+    load_cartodem_info,
     _invalidate_cache,
 )
 
@@ -80,6 +81,13 @@ def health_check():
             "alerts": "available",
         },
     )
+
+
+@app.get("/api/v1/topography/cartodem", tags=["Topography"])
+def get_cartodem_status():
+    """Get ISRO Bhuvan CartoDEM integration status, token details, and terrain stats."""
+    return load_cartodem_info()
+
 
 
 # ---------------------------------------------------------------------------
@@ -273,7 +281,8 @@ def submit_feedback(feedback: FeedbackRequest):
     Feedback is stored using Track B's feedback schema so it can be
     consumed for retraining.
     """
-    feedback_id = save_feedback(feedback.dict())
+    data = feedback.model_dump() if hasattr(feedback, "model_dump") else feedback.dict()
+    feedback_id = save_feedback(data)
     return FeedbackResponse(
         status="accepted",
         feedback_id=feedback_id,

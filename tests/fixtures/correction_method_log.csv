@@ -1,31 +1,31 @@
-date,regime,method_used
-2024-06-01,orographic,ml_gbm
-2024-06-02,western_disturbance,quantile_mapping
-2024-06-03,coastal,ml_gbm
-2024-06-04,break,ml_gbm
-2024-06-05,low_depression,quantile_mapping
-2024-06-06,western_disturbance,quantile_mapping
-2024-06-07,low_depression,quantile_mapping
-2024-06-08,orographic,quantile_mapping
-2024-06-09,break,quantile_mapping
-2024-06-10,active,quantile_mapping
-2024-06-11,western_disturbance,ml_gbm
-2024-06-12,low_depression,ml_gbm
-2024-06-13,orographic,quantile_mapping
-2024-06-14,orographic,ml_gbm
-2024-06-15,coastal,ml_gbm
-2024-06-16,active,ml_gbm
-2024-06-17,active,ml_gbm
-2024-06-18,low_depression,ml_gbm
-2024-06-19,active,quantile_mapping
-2024-06-20,break,quantile_mapping
-2024-06-21,break,ml_gbm
-2024-06-22,active,quantile_mapping
-2024-06-23,break,quantile_mapping
-2024-06-24,coastal,ml_gbm
-2024-06-25,coastal,quantile_mapping
-2024-06-26,orographic,quantile_mapping
-2024-06-27,active,quantile_mapping
-2024-06-28,break,quantile_mapping
-2024-06-29,orographic,ml_gbm
-2024-06-30,coastal,ml_gbm
+date,regime,confidence,method_used,reason
+2024-06-01,coastal,0.4802,ml_gbm,High-convection synoptic regime 'coastal' routed to multi-feature ML regressor
+2024-06-02,orographic,0.5158,quantile_mapping_regime_orographic,Statistical regime 'orographic' routed to distribution-preserving Quantile Mapping
+2024-06-03,orographic,0.4292,quantile_mapping_regime_orographic,Statistical regime 'orographic' routed to distribution-preserving Quantile Mapping
+2024-06-04,break,0.4455,quantile_mapping_regime_break,Statistical regime 'break' routed to distribution-preserving Quantile Mapping
+2024-06-05,coastal,0.3973,ml_gbm,High-convection synoptic regime 'coastal' routed to multi-feature ML regressor
+2024-06-06,active,0.4471,ml_gbm,High-convection synoptic regime 'active' routed to multi-feature ML regressor
+2024-06-07,orographic,0.4064,quantile_mapping_regime_orographic,Statistical regime 'orographic' routed to distribution-preserving Quantile Mapping
+2024-06-08,coastal,0.3681,ml_gbm,High-convection synoptic regime 'coastal' routed to multi-feature ML regressor
+2024-06-09,break,0.2932,quantile_mapping_regime_break,Low regime confidence (0.29 < 0.35); falling back to robust QM
+2024-06-10,coastal,0.5084,ml_gbm,High-convection synoptic regime 'coastal' routed to multi-feature ML regressor
+2024-06-11,western_disturbance,0.402,quantile_mapping_regime_western_disturbance,Statistical regime 'western_disturbance' routed to distribution-preserving Quantile Mapping
+2024-06-12,orographic,0.3831,quantile_mapping_regime_orographic,Statistical regime 'orographic' routed to distribution-preserving Quantile Mapping
+2024-06-13,active,0.3904,ml_gbm,High-convection synoptic regime 'active' routed to multi-feature ML regressor
+2024-06-14,western_disturbance,0.5819,quantile_mapping_regime_western_disturbance,Statistical regime 'western_disturbance' routed to distribution-preserving Quantile Mapping
+2024-06-15,active,0.2482,quantile_mapping_regime_active,Low regime confidence (0.25 < 0.35); falling back to robust QM
+2024-06-16,coastal,0.2668,quantile_mapping_regime_coastal,Low regime confidence (0.27 < 0.35); falling back to robust QM
+2024-06-17,western_disturbance,0.3285,quantile_mapping_regime_western_disturbance,Low regime confidence (0.33 < 0.35); falling back to robust QM
+2024-06-18,orographic,0.4012,quantile_mapping_regime_orographic,Statistical regime 'orographic' routed to distribution-preserving Quantile Mapping
+2024-06-19,break,0.3841,quantile_mapping_regime_break,Statistical regime 'break' routed to distribution-preserving Quantile Mapping
+2024-06-20,low_depression,0.318,quantile_mapping_regime_low_depression,Low regime confidence (0.32 < 0.35); falling back to robust QM
+2024-06-21,low_depression,0.5666,ml_gbm,High-convection synoptic regime 'low_depression' routed to multi-feature ML regressor
+2024-06-22,active,0.2913,quantile_mapping_regime_active,Low regime confidence (0.29 < 0.35); falling back to robust QM
+2024-06-23,western_disturbance,0.401,quantile_mapping_regime_western_disturbance,Statistical regime 'western_disturbance' routed to distribution-preserving Quantile Mapping
+2024-06-24,orographic,0.2838,quantile_mapping_regime_orographic,Low regime confidence (0.28 < 0.35); falling back to robust QM
+2024-06-25,coastal,0.3149,quantile_mapping_regime_coastal,Low regime confidence (0.31 < 0.35); falling back to robust QM
+2024-06-26,coastal,0.3469,quantile_mapping_regime_coastal,Low regime confidence (0.35 < 0.35); falling back to robust QM
+2024-06-27,active,0.4126,ml_gbm,High-convection synoptic regime 'active' routed to multi-feature ML regressor
+2024-06-28,western_disturbance,0.2829,quantile_mapping_regime_western_disturbance,Low regime confidence (0.28 < 0.35); falling back to robust QM
+2024-06-29,orographic,0.3806,quantile_mapping_regime_orographic,Statistical regime 'orographic' routed to distribution-preserving Quantile Mapping
+2024-06-30,western_disturbance,0.2699,quantile_mapping_regime_western_disturbance,Low regime confidence (0.27 < 0.35); falling back to robust QM

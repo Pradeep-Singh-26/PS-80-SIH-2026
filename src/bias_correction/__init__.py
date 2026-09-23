@@ -29,19 +29,33 @@ from .router import RegimeBiasCorrectionRouter
 
 def run():
     """Execute Track B ensemble blending, regime bias correction, and analog correction pipeline."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    processed_dir = project_root / "data" / "processed"
-    gfs_path = processed_dir / "nwp_grid_gfs.nc"
-    ecmwf_path = processed_dir / "nwp_grid_ecmwf.nc"
-    ensemble_path = processed_dir / "ensemble_grid.nc"
-    obs_path = processed_dir / "obs_grid.nc"
-    climatology_path = processed_dir / "climatology.nc"
-    regime_preds_path = processed_dir / "regime_predictions.csv"
-    features_daily_path = processed_dir / "features_daily.csv"
-    corrected_grid_path = processed_dir / "corrected_grid.nc"
-    correction_log_path = processed_dir / "correction_method_log.csv"
-    analog_grid_path = processed_dir / "analog_correction.nc"
-    analog_log_path = processed_dir / "analog_match_log.csv"
+    try:
+        from src.config import get_path
+        gfs_path = get_path("data.nwp_grid_gfs")
+        ecmwf_path = get_path("data.nwp_grid_ecmwf")
+        ensemble_path = get_path("data.ensemble_grid")
+        obs_path = get_path("data.obs_grid")
+        climatology_path = get_path("data.climatology")
+        regime_preds_path = get_path("data.regime_predictions")
+        features_daily_path = get_path("data.features_daily")
+        corrected_grid_path = get_path("data.corrected_grid")
+        correction_log_path = get_path("data.correction_method_log")
+        analog_grid_path = get_path("data.analog_correction")
+        analog_log_path = analog_grid_path.parent / "analog_match_log.csv"
+    except Exception:
+        project_root = Path(__file__).resolve().parent.parent.parent
+        processed_dir = project_root / "data" / "processed"
+        gfs_path = processed_dir / "nwp_grid_gfs.nc"
+        ecmwf_path = processed_dir / "nwp_grid_ecmwf.nc"
+        ensemble_path = processed_dir / "ensemble_grid.nc"
+        obs_path = processed_dir / "obs_grid.nc"
+        climatology_path = processed_dir / "climatology.nc"
+        regime_preds_path = processed_dir / "regime_predictions.csv"
+        features_daily_path = processed_dir / "features_daily.csv"
+        corrected_grid_path = processed_dir / "corrected_grid.nc"
+        correction_log_path = processed_dir / "correction_method_log.csv"
+        analog_grid_path = processed_dir / "analog_correction.nc"
+        analog_log_path = processed_dir / "analog_match_log.csv"
 
     # Step 1: Ensemble blending
     run_ensemble_blending(gfs_path=gfs_path, ecmwf_path=ecmwf_path, output_path=ensemble_path)

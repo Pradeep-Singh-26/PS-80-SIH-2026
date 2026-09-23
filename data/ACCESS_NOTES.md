@@ -37,6 +37,7 @@
 | **Synoptic tracks (LPS / Depressions)** | IMD Cyclone e-Atlas / RSMC New Delhi | RSMC New Delhi Low Pressure Systems & Depressions best-track archive | RSMC / IMD Public Bulletin | `data/raw/lps_wd_tracks/lps_tracks.csv` |
 | **Western Disturbance (WD) records** | IMD WD advisories | IMD WD Advisory logs & published climatology | IMD Open Access | `data/raw/lps_wd_tracks/wd_tracks.csv` |
 | **District Boundaries** | Survey of India / data.gov.in | Survey of India / GADM Indian Districts GeoJSON/Shapefile | Open Government Data (OGD) India | `data/raw/district_shapefile/` |
+| **Topography / Elevation (DEM)** | ISRO CartoDEM (1 arc-sec) via Bhuvan | Bhuvan Open Data / CartoDEM API (Key: `cb1_31ua_1_ab86827ad08256e283b46b25`) | ISRO / NRSC Open Access License | `data/raw/topography/` → `data/processed/cartodem_grid.nc` |
 
 ---
 
