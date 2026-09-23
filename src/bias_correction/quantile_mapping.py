@@ -6,7 +6,7 @@ when sample sizes per regime are limited.
 """
 
 import logging
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 import numpy as np
 import xarray as xr
 

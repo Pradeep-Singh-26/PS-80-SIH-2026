@@ -146,7 +146,7 @@ def run_comparison():
 
     overall_df = pd.DataFrame(overall_results)
     overall_df.to_csv(report_dir / "overall_metrics.csv", index=False)
-    print(f"    -> overall_metrics.csv")
+    print("    -> overall_metrics.csv")
 
     # ------------------------------------------------------------------
     # 2. Per-regime metrics
@@ -168,13 +168,13 @@ def run_comparison():
 
     regime_df_out = pd.DataFrame(regime_results)
     regime_df_out.to_csv(report_dir / "per_regime_metrics.csv", index=False)
-    print(f"    -> per_regime_metrics.csv")
+    print("    -> per_regime_metrics.csv")
 
     # Aggregate per regime
     if len(regime_df_out) > 0:
         regime_summary = regime_df_out.groupby(["source", "regime"]).mean(numeric_only=True).reset_index()
         regime_summary.to_csv(report_dir / "regime_summary.csv", index=False)
-        print(f"    -> regime_summary.csv")
+        print("    -> regime_summary.csv")
 
     # ------------------------------------------------------------------
     # 3. FSS at multiple scales (for the latest time step)
@@ -197,7 +197,7 @@ def run_comparison():
 
     fss_df = pd.DataFrame(fss_results)
     fss_df.to_csv(report_dir / "fss_scores.csv", index=False)
-    print(f"    -> fss_scores.csv")
+    print("    -> fss_scores.csv")
 
     # ------------------------------------------------------------------
     # 4. Reliability diagram data (if probability dataset available)
@@ -216,7 +216,7 @@ def run_comparison():
 
         with open(report_dir / "reliability_data.json", "w") as f:
             json.dump(rel_results, f, indent=2)
-        print(f"    -> reliability_data.json")
+        print("    -> reliability_data.json")
 
     # ------------------------------------------------------------------
     # 5. Summary report (Markdown)
@@ -248,10 +248,10 @@ def _write_summary_report(report_dir: Path, overall_df: pd.DataFrame, thresholds
 
         for tname in thresholds:
             lines.append(f"#### Threshold: {tname} (>= {thresholds[tname]} mm)")
-            lines.append(f"- POD: {row.get(f'{tname}_pod', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_pod', np.nan)) else f"- POD: N/A")
-            lines.append(f"- FAR: {row.get(f'{tname}_far', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_far', np.nan)) else f"- FAR: N/A")
-            lines.append(f"- CSI: {row.get(f'{tname}_csi', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_csi', np.nan)) else f"- CSI: N/A")
-            lines.append(f"- ETS: {row.get(f'{tname}_ets', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_ets', np.nan)) else f"- ETS: N/A")
+            lines.append(f"- POD: {row.get(f'{tname}_pod', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_pod', np.nan)) else "- POD: N/A")
+            lines.append(f"- FAR: {row.get(f'{tname}_far', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_far', np.nan)) else "- FAR: N/A")
+            lines.append(f"- CSI: {row.get(f'{tname}_csi', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_csi', np.nan)) else "- CSI: N/A")
+            lines.append(f"- ETS: {row.get(f'{tname}_ets', 'N/A'):.3f}" if not np.isnan(row.get(f'{tname}_ets', np.nan)) else "- ETS: N/A")
             lines.append("")
 
     lines.append("---")
@@ -259,4 +259,4 @@ def _write_summary_report(report_dir: Path, overall_df: pd.DataFrame, thresholds
 
     with open(report_dir / "REPORT.md", "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"    -> REPORT.md")
+    print("    -> REPORT.md")

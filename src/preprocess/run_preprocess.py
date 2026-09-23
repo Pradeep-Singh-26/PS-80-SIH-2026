@@ -27,7 +27,7 @@ logger = logging.getLogger("run_preprocess")
 
 def main():
     parser = argparse.ArgumentParser(description="Track A - Preprocessing & Regime Labeling Runner (Task 2)")
-    args = parser.parse_args()
+    _ = parser.parse_args()
 
     project_root = Path(__file__).resolve().parent.parent.parent
     raw_dir = project_root / "data" / "raw"

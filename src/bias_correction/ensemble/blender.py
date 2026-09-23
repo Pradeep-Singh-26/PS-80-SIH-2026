@@ -14,7 +14,6 @@ Contract output:
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional, Tuple
 
 import numpy as np
 import xarray as xr

@@ -6,8 +6,7 @@ Maintains an audit trail written to correction_method_log.csv.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
-import numpy as np
+from typing import Dict, List, Tuple
 import pandas as pd
 
 logger = logging.getLogger("bias_router")

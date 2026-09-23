@@ -7,7 +7,6 @@ by implementing the ``AlertChannel`` base class.
 """
 
 import abc
-import json
 import logging
 
 logger = logging.getLogger(__name__)

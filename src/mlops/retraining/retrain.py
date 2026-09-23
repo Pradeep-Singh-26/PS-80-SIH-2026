@@ -11,19 +11,15 @@ Coordinates:
 """
 
 import argparse
-from datetime import datetime, timezone
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 from ...bias_correction.ml_correction import (
-    DYNAMICAL_FEATURES,
-    REGIME_PROB_FEATURES,
-    STATIC_SPATIAL_FEATURES,
     MLGradientBoostedCorrector,
 )
 from ...explainability.correction_attribution import EXACT_ML_FEATURES
@@ -409,7 +405,7 @@ def main():
 
     args = parser.parse_args()
 
-    results = run_retraining_pipeline(
+    run_retraining_pipeline(
         ensemble_path=args.ensemble,
         obs_path=args.obs,
         climatology_path=args.climatology,

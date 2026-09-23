@@ -1,6 +1,6 @@
 # Model Evaluation Report — Multi-Label Regime Classifier (Track A)
 
-> **Generated**: 2026-09-22 23:18:49 UTC  
+> **Generated**: 2026-09-23 15:28:16 UTC  
 > **Held-out Test Period**: Monsoon Season 2023 (June 1 – September 30, 122 days)  
 > **Model Framework**: Multi-Output / Binary Relevance LightGBM Gradient Boosted Trees  
 

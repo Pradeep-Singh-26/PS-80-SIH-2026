@@ -10,7 +10,6 @@ All functions operate on numpy arrays for maximum reusability.
 """
 
 import numpy as np
-from typing import Tuple
 
 
 # ---------------------------------------------------------------------------

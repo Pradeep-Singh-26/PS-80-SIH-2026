@@ -107,7 +107,7 @@ class MLGradientBoostedCorrector:
             for lat_idx, lat_val in enumerate(lats):
                 for lon_idx, lon_val in enumerate(lons):
                     ens_val = ens_arr[t_idx, lat_idx, lon_idx]
-                    clim_val = clim_arr[lat_idx, lon_idx]
+                    clim_val = clim_arr[t_idx, lat_idx, lon_idx] if clim_arr.ndim == 3 else clim_arr[lat_idx, lon_idx]
 
                     row = {
                         "precip_ensemble": float(ens_val),

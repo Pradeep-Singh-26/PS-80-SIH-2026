@@ -10,7 +10,7 @@ Produces:
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd

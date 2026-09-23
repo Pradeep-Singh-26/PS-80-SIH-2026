@@ -5,7 +5,7 @@ conditioned on weather regimes, enforcing mathematical probability constraints (
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 import numpy as np
 import scipy.stats as stats
 
@@ -127,12 +127,14 @@ class ResidualUncertaintyEstimator:
 
         # Uncertainty intervals via bootstrap resampling of residual pool
         # Pre-generate bootstrap quantile estimates
-        boot_p = np.zeros((self.n_bootstrap, len(valid_y)), dtype=np.float32)
-        for b in range(self.n_bootstrap):
-            res_boot = self.rng.choice(sorted_res, size=n_res, replace=True)
+        boot_size = min(n_res, 1000)
+        n_boot = min(self.n_bootstrap, 50)
+        boot_p = np.zeros((n_boot, len(valid_y)), dtype=np.float32)
+        for b in range(n_boot):
+            res_boot = self.rng.choice(sorted_res, size=boot_size, replace=True)
             res_boot.sort()
             idx_b = np.searchsorted(res_boot, delta_needed, side="left")
-            boot_p[b] = (n_res - idx_b) / n_res
+            boot_p[b] = (boot_size - idx_b) / boot_size
 
         lower_pct = 100.0 * (1.0 - self.alpha_interval) / 2.0  # 10th percentile
         upper_pct = 100.0 * (1.0 + self.alpha_interval) / 2.0  # 90th percentile

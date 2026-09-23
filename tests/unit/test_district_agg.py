@@ -1,11 +1,9 @@
 """Unit tests for district & station aggregation."""
 
-import json
 import os
 import sys
 from pathlib import Path
 
-import pytest
 import pandas as pd
 import numpy as np
 

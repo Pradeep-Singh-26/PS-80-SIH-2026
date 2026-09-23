@@ -8,7 +8,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 
@@ -103,7 +103,7 @@ def validate_feedback_record(record: Dict[str, Any]) -> Tuple[bool, Optional[str
             if not (0.0 <= p_h_val <= 1.0):
                 return False, f"p_heavy must be in [0.0, 1.0], got {p_h_val}."
         except (ValueError, TypeError):
-            return False, f"Invalid float value for p_heavy."
+            return False, "Invalid float value for p_heavy."
 
     if p_vh is not None and not pd.isna(p_vh):
         try:
@@ -111,7 +111,7 @@ def validate_feedback_record(record: Dict[str, Any]) -> Tuple[bool, Optional[str
             if not (0.0 <= p_vh_val <= 1.0):
                 return False, f"p_very_heavy must be in [0.0, 1.0], got {p_vh_val}."
         except (ValueError, TypeError):
-            return False, f"Invalid float value for p_very_heavy."
+            return False, "Invalid float value for p_very_heavy."
 
     if p_h is not None and p_vh is not None and not pd.isna(p_h) and not pd.isna(p_vh):
         if float(p_vh) > float(p_h) + 1e-6:
@@ -135,7 +135,7 @@ def validate_feedback_record(record: Dict[str, Any]) -> Tuple[bool, Optional[str
         if not (0.0 <= conf_val <= 1.0):
             return False, f"confidence must be in [0.0, 1.0], got {conf_val}."
     except (ValueError, TypeError):
-        return False, f"Invalid float value for confidence."
+        return False, "Invalid float value for confidence."
 
     # 7. Model version format
     mod_ver = record.get("model_version")

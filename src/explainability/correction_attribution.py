@@ -19,7 +19,7 @@ Scientific & Contract Guarantees:
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -460,7 +460,7 @@ def main():
 
     args = parser.parse_args()
 
-    results = run_explainability_pipeline(
+    run_explainability_pipeline(
         ensemble_path=args.ensemble,
         obs_path=args.obs,
         climatology_path=args.climatology,

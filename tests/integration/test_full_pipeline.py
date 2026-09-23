@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 os.environ["CONFIG_PATH"] = str(ROOT / "config.test.yaml")
 
-from src.config import get_path
+from src.config import get_path  # noqa: E402
 
 
 class TestFullPipeline:

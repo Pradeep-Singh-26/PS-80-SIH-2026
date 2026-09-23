@@ -22,10 +22,9 @@ import json
 import logging
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import joblib
-import numpy as np
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("model_registry")
@@ -296,7 +295,7 @@ class ModelRegistry:
     def set_active(self, model_name: str, version: str) -> Dict[str, Any]:
         """Mark a specific version as active and record in audit history."""
         # Verify version exists
-        meta = self.get_metadata(model_name, version)
+        _ = self.get_metadata(model_name, version)
 
         active_file = self._get_active_file(model_name)
         history = []

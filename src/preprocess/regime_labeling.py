@@ -55,7 +55,6 @@ def generate_regime_labels(processed_dir: Path) -> pd.DataFrame:
     coastal_mask = (lon_mesh <= 74.5) | (lon_mesh >= 85.0)
 
     dates = df_feat["date"].values
-    n = len(df_feat)
 
     # Vectorized computation of terrain and coastal mean rainfall over all dates
     terrain_rain = obs_rain[:, orog_mask].mean(axis=1)

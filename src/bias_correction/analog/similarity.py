@@ -5,7 +5,7 @@ synoptic/physical feature space, conditioned on weather regimes with strict leak
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 
@@ -193,10 +193,8 @@ class AnalogSearchEngine:
 
         if len(same_regime_candidates) >= self.min_same_regime:
             active_pool = same_regime_candidates
-            regime_filter_applied = True
         else:
             active_pool = candidates
-            regime_filter_applied = False
             fallback_used = True
             fallback_reason = f"insufficient_same_regime_samples_{len(same_regime_candidates)}<min_{self.min_same_regime}"
 

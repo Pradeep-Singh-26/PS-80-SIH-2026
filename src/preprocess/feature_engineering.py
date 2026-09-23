@@ -11,7 +11,6 @@ Produces:
 
 import logging
 from pathlib import Path
-from typing import Dict, List
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -36,7 +35,6 @@ def compute_daily_features(
     ds_clim = xr.open_dataset(clim_file)
 
     dates = ds_obs["date"].values
-    n_dates = len(dates)
     lats = ds_obs["lat"].values
     lons = ds_obs["lon"].values
 
