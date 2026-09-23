@@ -1,8 +1,8 @@
 # MLOps Retraining & Promotion Audit Report (Task 11)
 
 > **Track B (Baljeet) — PS 26080**  
-> **Lifecycle Outcome**: `🚀 PROMOTED TO ACTIVE`  
-> **Execution Mode**: `LIVE RETRAINING`  
+> **Lifecycle Outcome**: `DRY-RUN (PROMOTION ELIGIBLE)`  
+> **Execution Mode**: `DRY RUN (No active state modified)`  
 > **Dataset Status**: `SYNTHETIC FIXTURE / DEMO VALIDATION`
 
 ---
@@ -19,20 +19,20 @@
 
 ## 2. Model Performance Benchmark Comparison (Held-Out Validation)
 
-| Metric | Old Active Model (`None`) | Candidate Retrained Model (`v001`) | Delta (Candidate - Old) |
+| Metric | Old Active Model (`v001`) | Candidate Retrained Model (`v_dry_run`) | Delta (Candidate - Old) |
 |---|---|---|---|
-| **RMSE** | `N/A mm` | **`25.45 mm`** | `Baseline mm` |
-| **MAE** | `N/A mm` | **`19.46 mm`** | `Baseline mm` |
-| **Mean Bias** | `N/A mm` | **`-1.51 mm`** | `Baseline mm` |
+| **RMSE** | `25.45 mm` | **`25.45 mm`** | `0.0 mm` |
+| **MAE** | `19.46 mm` | **`19.46 mm`** | `0.0 mm` |
+| **Mean Bias** | `-1.51 mm` | **`-1.51 mm`** | `0.0 mm` |
 
 ---
 
 ## 3. Promotion Decision & Audit Trail
 
 - **Promotion Qualified**: **`True`**
-- **Active Version Action**: `Activated version v001`
+- **Active Version Action**: `Preserved active version v001`
 - **Decision Rationale**:
-  - No existing active model found; candidate promoted as initial operational baseline.
+  - Candidate RMSE (25.45 mm) is equal or superior to active RMSE (25.45 mm), and MAE (19.46 mm vs 19.46 mm) is within acceptable bounds.
 
 ---
 
