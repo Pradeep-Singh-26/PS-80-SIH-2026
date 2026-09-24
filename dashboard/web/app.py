@@ -1,7 +1,7 @@
-"""PS 26080 -- Streamlit Dashboard.
+"""RainCore -- Streamlit Dashboard.
 
 Regime-Aware Rainfall Post-Processing & Orographic Downscaling System.
-Ultra-Clean White, Black, and Light Blue Enterprise UI.
+High-Resolution Weather Intelligence Platform.
 
 Run:
     streamlit run dashboard/web/app.py
@@ -32,20 +32,22 @@ from api.data_loader import (
     load_regime_summary,
     load_cartodem_info,
     save_feedback,
+    _invalidate_cache,
 )
+from dashboard.components.guide_component import render_guide_view, render_page_help_banner
 
 # ---------------------------------------------------------------------------
 # Page configuration
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="PS 26080 | Regime-Aware Monsoon AI",
+    page_title="RainCore | Monsoon Intelligence & Orographic AI",
     page_icon="🌧️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------------------------
-# Clean White, Black, and Light Blue Design System (CSS)
+# Design System & Modern Top Navbar CSS
 # ---------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -62,48 +64,96 @@ st.markdown("""
         background-color: #ffffff;
     }
 
-    /* Top Brand Header */
-    .brand-banner {
+    /* =======================================================================
+       RAINCORE PROPER TOP NAVBAR
+       Sleek enterprise navigation bar placed at the top of the portal
+       ======================================================================= */
+    .raincore-navbar {
         background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
-        border: 1px solid #bae6fd;
+        border: 1.5px solid #bae6fd;
         border-radius: 14px;
-        padding: 18px 24px;
-        margin-bottom: 20px;
+        padding: 14px 20px;
+        margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
-        box-shadow: 0 4px 20px -2px rgba(2, 132, 199, 0.08);
+        box-shadow: 0 4px 16px rgba(2, 132, 199, 0.07);
     }
-    .brand-title {
-        font-size: 1.5rem;
+    .raincore-brand-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .raincore-brand-icon {
+        font-size: 2rem;
+        line-height: 1;
+    }
+    .raincore-brand-title {
+        font-size: 1.6rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
         letter-spacing: -0.5px;
+        line-height: 1.1;
     }
-    .brand-subtitle {
-        font-size: 0.88rem;
+    .raincore-brand-subtitle {
+        font-size: 0.82rem;
         color: #475569;
-        margin: 4px 0 0 0;
+        margin: 2px 0 0 0;
         font-weight: 500;
+    }
+    .raincore-badge {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.4px;
+        display: inline-block;
+        margin-left: 6px;
     }
     .pill-badge {
         background: #ffffff;
         border: 1px solid #bae6fd;
         color: #0284c7;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 700;
-        padding: 5px 12px;
-        border-radius: 24px;
+        padding: 4px 12px;
+        border-radius: 20px;
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.06);
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.05);
+    }
+
+    /* Segmented Control Navbar Container */
+    div[data-testid="stSegmentedControl"] {
+        background: #f8fafc !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+        padding: 5px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+        margin-bottom: 16px !important;
+    }
+    div[data-testid="stSegmentedControl"] button {
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+        padding: 9px 16px !important;
+        color: #334155 !important;
+        transition: all 0.15s ease !important;
+    }
+    div[data-testid="stSegmentedControl"] button:hover {
+        background: #ffffff !important;
+        color: #0284c7 !important;
+    }
+    div[data-testid="stSegmentedControl"] button[aria-checked="true"] {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.3) !important;
     }
 
     /* Page Titles */
@@ -111,21 +161,43 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 18px;
+        margin-bottom: 12px;
         border-bottom: 1.5px solid #f1f5f9;
-        padding-bottom: 12px;
+        padding-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     .page-title {
-        font-size: 1.4rem;
+        font-size: 1.38rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
         letter-spacing: -0.3px;
     }
     .page-subtitle {
-        font-size: 0.88rem;
+        font-size: 0.86rem;
         color: #64748b;
         margin: 4px 0 0 0;
+    }
+
+    /* Active Filter Status Banner */
+    .filter-status-banner {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px 14px;
+        margin-bottom: 14px;
+    }
+    .filter-chip {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 3px 9px;
+        font-size: 0.78rem;
+        color: #0f172a;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
 
     /* Sleek KPI Cards */
@@ -162,21 +234,88 @@ st.markdown("""
         color: #0284c7;
     }
 
-    /* Map Box Container */
-    .map-frame {
-        border: 1.5px solid #bae6fd;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(2, 132, 199, 0.08);
-        background: #f8fafc;
-        margin-bottom: 20px;
-    }
-
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background-color: #f8fafc;
-        border-right: 1px solid #e2e8f0;
-        padding-top: 1rem;
+        border-right: 1.5px solid #e2e8f0;
+        padding-top: 0.8rem;
+    }
+
+    /* Sidebar Brand Card */
+    .sidebar-brand-card {
+        background: #ffffff;
+        border: 1.5px solid #bae6fd;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);
+    }
+    .sidebar-brand-title {
+        font-weight: 800;
+        font-size: 1.35rem;
+        color: #0f172a;
+        margin: 4px 0 0 0;
+        line-height: 1.1;
+    }
+    .sidebar-brand-subtitle {
+        font-size: 0.76rem;
+        color: #0284c7;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .sidebar-badge-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+    .sidebar-mini-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: #f0f7ff;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+        border-radius: 4px;
+        padding: 2px 6px;
+    }
+
+    /* Live Pulsing Dot */
+    @keyframes pulse-emerald {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+        70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .pulse-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #10b981;
+        border-radius: 50%;
+        animation: pulse-emerald 2s infinite;
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+    .live-status-pill {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Telemetry Card */
+    .telemetry-card {
+        background: #ffffff;
+        border: 1.5px solid #bae6fd;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.05);
     }
 
     /* Modern Tabs */
@@ -208,11 +347,44 @@ st.markdown("""
         border: none !important;
         border-radius: 8px !important;
         font-weight: 700 !important;
-        padding: 9px 20px !important;
-        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        padding: 8px 16px !important;
+        font-size: 0.88rem !important;
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.20) !important;
+        transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.30) !important;
     }
 </style>
 """, unsafe_allow_html=True)
+
+# ---------------------------------------------------------------------------
+# Navigation Setup
+# ---------------------------------------------------------------------------
+NAV_OPTIONS = [
+    "📖 How to Use & Guide",   # <-- Far-left option!
+    "🗺️ District & Station Map",
+    "🌀 Regime Classification",
+    "🛰️ Topography & CartoDEM",
+    "📊 Verification & Skill",
+    "🚨 Alerts Dashboard",
+    "⚖️ Raw vs Corrected",
+    "📝 Forecaster Feedback",
+]
+
+# Track active navigation tab
+if "raincore_active_tab" not in st.session_state:
+    st.session_state["raincore_active_tab"] = "🗺️ District & Station Map"
+
+
+def switch_to_view(view_name: str):
+    """Programmatically switch system view and rerun."""
+    if view_name in NAV_OPTIONS:
+        st.session_state["raincore_active_tab"] = view_name
+        st.session_state["raincore_segmented_nav"] = view_name
+        st.rerun()
+
 
 # ---------------------------------------------------------------------------
 # Data Loading & Preparation
@@ -220,24 +392,57 @@ st.markdown("""
 district_df = load_district_table()
 station_df = load_station_table()
 carto_info = load_cartodem_info()
+alerts_list = load_alerts()
+
 
 # ---------------------------------------------------------------------------
-# Sidebar Navigation & Live Controls
+# Dedicated Sidebar Controls
+# (All controls and parameters live exclusively on the sidebar)
 # ---------------------------------------------------------------------------
 with st.sidebar:
+    # 1. RainCore Brand Card
     st.markdown("""
-    <div style="padding: 6px 0 16px 0; border-bottom: 1.5px solid #e2e8f0; margin-bottom: 18px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.6rem;">🌧️</span>
-            <div>
-                <div style="font-weight: 800; font-size: 1.25rem; color: #0f172a; line-height: 1.1;">PS 26080</div>
-                <div style="font-size: 0.75rem; color: #0284c7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;">Monsoon Post-Processing</div>
-            </div>
+    <div class="sidebar-brand-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 1.7rem;">🌧️</span>
+            <span class="live-status-pill"><span class="pulse-dot"></span> OPERATIONAL</span>
+        </div>
+        <div class="sidebar-brand-title">RainCore</div>
+        <div class="sidebar-brand-subtitle">Regime-Aware Monsoon AI</div>
+        <div class="sidebar-badge-row">
+            <span class="sidebar-mini-badge">ISRO CartoDEM 30m</span>
+            <span class="sidebar-mini-badge">MoES / IMD</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Global Date Filter (in sidebar for easy access)
+    # 2. Collapsible Quick Guide in Sidebar
+    with st.expander("🧭 Quick Guide & Workflow", expanded=False):
+        st.markdown("""
+        <div style="font-size: 0.8rem; color: #334155; line-height: 1.5;">
+            <div style="font-weight: 800; color: #0284c7; margin-bottom: 6px;">⚡ Operational Protocol:</div>
+            <div><b>1. Set Date:</b> Pick target forecast date below.</div>
+            <div><b>2. Check Regime:</b> Inspect active synoptic circulation.</div>
+            <div><b>3. Examine Map:</b> Spot high P(Heavy) exceedance districts.</div>
+            <div><b>4. Review Alerts:</b> Generate civil defense bulletins.</div>
+            <div style="border-top: 1px solid #e2e8f0; margin: 8px 0; padding-top: 6px;">
+                <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🌧️ IMD Rainfall Scale:</div>
+                <div><span style="color: #166534; font-weight: 700;">🟢 Light:</span> &lt; 15.6 mm</div>
+                <div><span style="color: #0284c7; font-weight: 700;">🔵 Moderate:</span> 15.6 - 64.4 mm</div>
+                <div><span style="color: #ea580c; font-weight: 700;">🟠 Heavy:</span> 64.5 - 115.5 mm</div>
+                <div><span style="color: #dc2626; font-weight: 700;">🔴 Very Heavy:</span> &ge; 115.6 mm</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📖 Open Full Guide", key="sidebar_full_guide_btn", use_container_width=True):
+            switch_to_view("📖 How to Use & Guide")
+
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+
+    # 3. Forecast Control Options (Sidebar exclusive)
+    st.markdown("<div style='font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;'>Forecast Parameters</div>", unsafe_allow_html=True)
+
+    # Date selector
     if not district_df.empty:
         available_dates = sorted(district_df["date"].unique())
         selected_date = st.selectbox(
@@ -249,79 +454,144 @@ with st.sidebar:
     else:
         selected_date = "2024-06-15"
 
+    # Minimum rainfall filter slider
+    sidebar_min_rain = st.slider(
+        "💧 Min Rainfall Filter (mm)",
+        min_value=0.0,
+        max_value=150.0,
+        value=0.0,
+        step=5.0,
+        help="Filter districts and map records by minimum downscaled rainfall",
+    )
+
+    # Quick District Search
+    if not district_df.empty:
+        all_districts = ["All Districts"] + sorted(district_df["district_name"].unique().tolist())
+        sidebar_district = st.selectbox(
+            "🔍 District Scope & Search",
+            options=all_districts,
+            index=0,
+            help="Highlight or filter down to a specific district",
+        )
+    else:
+        sidebar_district = "All Districts"
+
     st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-    # Telemetry Status Card
+    # 4. Live Telemetry & Feed Status Card
+    critical_alerts_count = sum(1 for a in alerts_list if a.get("severity") == "CRITICAL")
+    warning_alerts_count = sum(1 for a in alerts_list if a.get("severity") in ("ALERT", "WARNING"))
+
     st.markdown(f"""
-    <div style="background: #ffffff; border: 1.5px solid #bae6fd; border-radius: 12px; padding: 14px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);">
+    <div class="telemetry-card">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-weight: 800; font-size: 0.85rem; color: #0f172a;">🛰️ ISRO CartoDEM</span>
-            <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">ACTIVE</span>
+            <span style="font-weight: 800; font-size: 0.85rem; color: #0f172a;">📡 Telemetry & Feeds</span>
+            <span style="background: #e0f2fe; color: #0369a1; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">SYNCED</span>
         </div>
-        <div style="font-size: 0.78rem; color: #475569; line-height: 1.5;">
-            <div>• Resolution: <b>1 arc-sec (~30m)</b></div>
-            <div>• Key: <code style="font-size: 0.72rem; background: #f0f7ff; color: #0369a1; padding: 2px 4px; border-radius: 4px;">{carto_info.get('api_key_masked', 'cb1_3vjz...e189')}</code></div>
-            <div>• Orographic Grid: <b>Loaded (.nc)</b></div>
+        <div style="font-size: 0.78rem; color: #475569; line-height: 1.55;">
+            <div>• <b>ISRO CartoDEM:</b> <span style="color: #059669; font-weight: 700;">1 arc-sec (~30m)</span></div>
+            <div>• <b>Observation Net:</b> {len(station_df) if not station_df.empty else 150} Stations</div>
+            <div>• <b>IMD Domain:</b> 8°N-38°N (0.25° grid)</div>
+            <div>• <b>Active Alerts:</b> <span style="color: {'#dc2626' if critical_alerts_count > 0 else '#059669'}; font-weight: 700;">{critical_alerts_count} Critical</span> | {warning_alerts_count} Warning</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
+    # 5. Forecaster Action Tools
+    col_sb1, col_sb2 = st.columns(2)
+    with col_sb1:
+        if st.button("🔄 Refresh Cache", use_container_width=True, help="Invalidate data loader cache and reload"):
+            _invalidate_cache()
+            st.cache_data.clear()
+            st.rerun()
+    with col_sb2:
+        if st.button("✍️ Add Feedback", use_container_width=True, help="Jump to forecaster feedback form"):
+            switch_to_view("📝 Forecaster Feedback")
+
+    # Export active forecast CSV
+    if not district_df.empty:
+        day_export = district_df[district_df["date"] == selected_date]
+        if not day_export.empty:
+            csv_str = day_export.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="📥 Export Day Forecast (CSV)",
+                data=csv_str,
+                file_name=f"raincore_forecast_{selected_date}.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
     st.markdown("""
-    <div style="background: #f0f7ff; border: 1px solid #e0f2fe; border-radius: 10px; padding: 12px; font-size: 0.78rem; color: #334155; line-height: 1.4;">
-        <b>Smart India Hackathon 2026</b><br>
-        Physics-Informed Bias Correction & Topographic Orographic Downscaling.
+    <div style="font-size: 0.72rem; color: #94a3b8; text-align: center; line-height: 1.3;">
+        MoES &bull; IMD &bull; ISRO Bhuvan Open Data<br>
+        Physics-Informed Orographic Post-Processing V2.1
     </div>
     """, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
-# Top Global Brand Header
+# Top Global Brand Header & Navigation Bar
 # ---------------------------------------------------------------------------
 st.markdown("""
-<div class="brand-banner">
-    <div>
-        <h1 class="brand-title">
-            <span>🌧️</span> PS 26080 | Regime-Aware Monsoon Rainfall AI
-        </h1>
-        <p class="brand-subtitle">
-            High-Resolution Bias Correction, Heavy Rain Risk Calibration & ISRO CartoDEM Topography Downscaling
-        </p>
+<div class="raincore-navbar">
+    <div class="raincore-brand-group">
+        <span class="raincore-brand-icon">🌧️</span>
+        <div>
+            <div style="display: flex; align-items: center;">
+                <h1 class="raincore-brand-title">RainCore</h1>
+                <span class="raincore-badge">MONSOON AI</span>
+            </div>
+            <p class="raincore-brand-subtitle">
+                Physics-Informed Bias Correction &bull; Heavy Rain Risk Calibration &bull; ISRO CartoDEM Topography Downscaling
+            </p>
+        </div>
     </div>
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <span class="pill-badge">🛰️ ISRO Bhuvan CartoDEM 30m</span>
-        <span class="pill-badge">⚡ AI Post-Processing V2.1</span>
+        <span class="pill-badge" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+            <span class="pulse-dot"></span> LIVE FORECASTS
+        </span>
+        <span class="pill-badge">🛰️ ISRO CartoDEM 30m</span>
         <span class="pill-badge">📍 IMD Domain: 8°N-38°N</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-
 # ---------------------------------------------------------------------------
-# Clean Top Navigation Bar
+# Clean, Visible, Well-Placed Segmented Navigation Bar
+# ("📖 How to Use & Guide" is on the far left!)
 # ---------------------------------------------------------------------------
-nav_view = st.radio(
-    "Select System View",
-    [
-        "🗺️ District & Station Map",
-        "🌀 Regime Classification",
-        "🛰️ Topography & CartoDEM",
-        "📊 Verification & Skill",
-        "🚨 Alerts Dashboard",
-        "⚖️ Raw vs Corrected",
-        "📝 Forecaster Feedback",
-    ],
-    index=0,
-    horizontal=True,
+selected_nav = st.segmented_control(
+    "RainCore Navigation",
+    NAV_OPTIONS,
+    default=st.session_state.get("raincore_active_tab", "🗺️ District & Station Map"),
+    key="raincore_segmented_nav",
     label_visibility="collapsed",
+    width="stretch",
 )
 
-st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+if not selected_nav:
+    nav_view = st.session_state.get("raincore_active_tab", "🗺️ District & Station Map")
+else:
+    nav_view = selected_nav
+    st.session_state["raincore_active_tab"] = nav_view
+
+st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+
+
+# ===========================================================================
+# VIEW 0: How to Use & System Guide (Far Left Navigation Option)
+# ===========================================================================
+if nav_view == "📖 How to Use & Guide":
+    render_guide_view(switch_to_view)
 
 
 # ===========================================================================
 # VIEW 1: District & Station Map
 # ===========================================================================
-if nav_view == "🗺️ District & Station Map":
+elif nav_view == "🗺️ District & Station Map":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>
@@ -334,28 +604,40 @@ if nav_view == "🗺️ District & Station Map":
     if district_df.empty:
         st.warning("District table not found. Please run the orchestration pipeline first.")
     else:
-        day_districts = district_df[district_df["date"] == selected_date]
-        day_stations = station_df[station_df["date"] == selected_date] if not station_df.empty else pd.DataFrame()
+        day_districts = district_df[district_df["date"] == selected_date].copy()
+        day_stations = station_df[station_df["date"] == selected_date].copy() if not station_df.empty else pd.DataFrame()
 
-        # Filter bar
-        col_f1, col_f2 = st.columns([1, 2])
-        with col_f1:
-            min_rain_filter = st.slider("Filter Minimum Rainfall (mm)", 0.0, 150.0, 0.0, step=5.0)
-        with col_f2:
-            districts_list = ["All Districts"] + sorted(district_df["district_name"].unique().tolist())
-            selected_dist = st.selectbox("Search / Highlight Specific District", districts_list)
+        # Apply sidebar controls directly (no duplicate controls on dashboard)
+        effective_min_rain = sidebar_min_rain
+        if effective_min_rain > 0:
+            day_districts = day_districts[day_districts["corrected_rainfall_mm"] >= effective_min_rain]
 
-        if min_rain_filter > 0:
-            day_districts = day_districts[day_districts["corrected_rainfall_mm"] >= min_rain_filter]
+        if sidebar_district != "All Districts":
+            day_districts = day_districts[day_districts["district_name"] == sidebar_district]
 
-        if selected_dist != "All Districts":
-            day_districts = day_districts[day_districts["district_name"] == selected_dist]
+        # Active parameters indicator ribbon
+        st.markdown(f"""
+        <div class="filter-status-banner">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="font-weight: 700; color: #0369a1; font-size: 0.82rem; text-transform: uppercase;">Active Scope:</span>
+                    <span class="filter-chip">📅 Date: <b>{selected_date}</b></span>
+                    <span class="filter-chip">💧 Min Rain: <b>&ge; {sidebar_min_rain:.1f} mm</b></span>
+                    <span class="filter-chip">📍 District: <b>{sidebar_district}</b></span>
+                    <span class="filter-chip">📊 Displayed: <b>{len(day_districts)} districts</b></span>
+                </div>
+                <div style="font-size: 0.78rem; color: #64748b;">
+                    ⚙️ <i>Filter parameters managed via left sidebar</i>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Top 4 KPI Metrics
         avg_rain = day_districts["corrected_rainfall_mm"].mean() if not day_districts.empty else 0.0
         max_rain = day_districts["corrected_rainfall_mm"].max() if not day_districts.empty else 0.0
         high_risk_count = len(day_districts[day_districts["p_heavy"] >= 0.40]) if not day_districts.empty else 0
-        dom_regime = day_districts["dominant_regime"].iloc[0].replace("_", " ").title() if not day_districts.empty else "N/A"
+        dom_regime = day_districts["dominant_regime"].iloc[0].replace("_", " ").title() if not day_districts.empty else "Active Monsoon"
 
         c1, c2, c3, c4 = st.columns(4)
         with c1:
@@ -363,7 +645,7 @@ if nav_view == "🗺️ District & Station Map":
             <div class="kpi-card">
                 <div class="kpi-label">Mean Rainfall</div>
                 <div class="kpi-value">{avg_rain:.1f} <span style="font-size: 0.9rem; color: #64748b;">mm</span></div>
-                <div class="kpi-tag">Spatial areal mean</div>
+                <div class="kpi-tag">Spatial areal mean ({len(day_districts)} districts)</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -372,7 +654,7 @@ if nav_view == "🗺️ District & Station Map":
             <div class="kpi-card">
                 <div class="kpi-label">Peak Recorded Rain</div>
                 <div class="kpi-value">{max_rain:.1f} <span style="font-size: 0.9rem; color: #64748b;">mm</span></div>
-                <div class="kpi-tag" style="color: {'#dc2626' if max_rain >= 115.6 else '#0284c7'};">
+                <div class="kpi-tag" style="color: {'#dc2626' if max_rain >= 115.6 else ('#ea580c' if max_rain >= 64.5 else '#0284c7')};">
                     {'⚠️ Very Heavy' if max_rain >= 115.6 else ('⚡ Heavy' if max_rain >= 64.5 else '🌧️ Moderate')}
                 </div>
             </div>
@@ -398,9 +680,9 @@ if nav_view == "🗺️ District & Station Map":
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
-        # High-End Map Display Header with Mode Selector
+        # Map Display Header with Mode Selector
         col_m1, col_m2 = st.columns([2, 1])
         with col_m1:
             st.markdown("""
@@ -481,6 +763,8 @@ if nav_view == "🗺️ District & Station Map":
 # VIEW 2: Regime Classification
 # ===========================================================================
 elif nav_view == "🌀 Regime Classification":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>
@@ -503,6 +787,8 @@ elif nav_view == "🌀 Regime Classification":
 # VIEW 3: Topography & CartoDEM
 # ===========================================================================
 elif nav_view == "🛰️ Topography & CartoDEM":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>
@@ -603,6 +889,8 @@ elif nav_view == "🛰️ Topography & CartoDEM":
 # VIEW 4: Verification & Skill
 # ===========================================================================
 elif nav_view == "📊 Verification & Skill":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>
@@ -620,6 +908,8 @@ elif nav_view == "📊 Verification & Skill":
 # VIEW 5: Alerts Dashboard
 # ===========================================================================
 elif nav_view == "🚨 Alerts Dashboard":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>
@@ -637,6 +927,8 @@ elif nav_view == "🚨 Alerts Dashboard":
 # VIEW 6: Raw vs Corrected
 # ===========================================================================
 elif nav_view == "⚖️ Raw vs Corrected":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>
@@ -691,6 +983,8 @@ elif nav_view == "⚖️ Raw vs Corrected":
 # VIEW 7: Feedback
 # ===========================================================================
 elif nav_view == "📝 Forecaster Feedback":
+    render_page_help_banner(nav_view, switch_to_view)
+
     st.markdown("""
     <div class="page-title-row">
         <div>

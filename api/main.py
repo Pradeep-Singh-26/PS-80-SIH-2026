@@ -1,4 +1,4 @@
-"""PS 26080 -- FastAPI Service.
+"""RainCore -- FastAPI Service.
 
 Exposes regime classification, corrected forecasts, heavy-rain
 probability, district/station products, verification summaries, alerts,
@@ -46,7 +46,7 @@ from api.data_loader import (
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="PS 26080 -- Regime-Aware Rainfall Post-Processing API",
+    title="RainCore -- Regime-Aware Rainfall Post-Processing API",
     description=(
         "API for the Regime-Aware AI Post-Processing system. "
         "Serves regime classification, corrected forecasts, heavy-rain "
