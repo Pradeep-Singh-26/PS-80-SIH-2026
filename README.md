@@ -173,6 +173,7 @@ python -m pytest --cov=src --cov=api
 ## 📚 Documentation Index
 
 Comprehensive guides are available in the [`docs/`](docs/) directory:
+* 🧠 [Universal Agent Knowledge Base](docs/PROJECT_CONTEXT.md) — Comprehensive problem context, theoretical meteorology, and system specs.
 * 🏛️ [System Architecture](docs/architecture.md) — Architectural overview, data contracts, and pipeline topology.
 * 🔌 [API Reference](docs/api_reference.md) — Complete REST endpoint documentation and request/response schemas.
 * 📖 [User Guide](docs/user_guide.md) — Operational workflows for forecasters and administrators.

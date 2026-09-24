@@ -10,6 +10,7 @@ This directory contains technical architecture blueprints, operational user manu
 
 | Document | Audience | Key Contents |
 |---|---|---|
+| 🧠 **[Universal Knowledge Base](PROJECT_CONTEXT.md)** | AI Agents, Evaluators & Researchers | Deep context covering theoretical meteorology, problem formulation, system specs, and FAQs. |
 | 🏛️ **[System Architecture](architecture.md)** | Engineers & Architects | End-to-end dataflow, track boundaries, input/output contracts, and ML topologies. |
 | 🔌 **[API Reference](api_reference.md)** | Developers & Integrators | Full REST API specification across all 14 endpoints (FastAPI, Swagger, schemas). |
 | 📖 **[User Guide](user_guide.md)** | Forecasters & Operators | Step-by-step operational workflows, dashboard tab navigation, and alert tuning. |
