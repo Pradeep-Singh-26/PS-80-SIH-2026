@@ -27,7 +27,13 @@ def train_regime_classifier(processed_dir: Path, output_model_path: Path) -> Mul
     X_train = df_X[train_mask].copy()
     Y_train = df_Y[train_mask].copy()
 
-    logger.info(f"Training regime classifier on {len(X_train)} samples from years {TRAIN_YEARS}...")
+    if len(X_train) == 0:
+        split_idx = max(1, int(0.7 * len(df_X)))
+        X_train = df_X.iloc[:split_idx].copy()
+        Y_train = df_Y.iloc[:split_idx].copy()
+        logger.info(f"TRAIN_YEARS {TRAIN_YEARS} not matched in dataset. Using first {len(X_train)} samples for training.")
+    else:
+        logger.info(f"Training regime classifier on {len(X_train)} samples from years {TRAIN_YEARS}...")
     clf = MultiLabelRegimeClassifier()
     clf.fit(X_train, Y_train)
 

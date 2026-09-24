@@ -20,14 +20,14 @@
 
 | Metric | Heavy Rainfall (`≥ 64.5 mm`) | Very Heavy Rainfall (`≥ 115.6 mm`) | Description |
 |---|---|---|---|
-| **Observed Events (Validation)** | `45` / 384 | `6` / 384 | Observed threshold exceedance counts |
-| **Validation Base Rate** | `11.72%` | `1.56%` | Empirical event frequency in test sample |
-| **Calibration Climatology (p_ref)** | `10.70%` | `0.76%` | Prior reference frequency from train split |
-| **Brier Score (BS)** | **`0.1560`** | **`0.0200`** | Mean squared probability error (0.0 = perfect) |
-| **Reference Brier Score (BS_ref)** | `0.1036` | `0.0154` | Climatology benchmark Brier Score |
-| **Brier Skill Score (BSS)** | **`-0.5062`** | **`-0.2934`** | Skill improvement over climatology (> 0 is skill) |
-| **Expected Calibration Error (ECE)** | **`0.1184`** | **`0.0195`** | Weighted average reliability deviation |
-| **ROC-AUC (Discrimination)** | **`0.5405`** | **`0.5049`** | Area under ROC curve |
+| **Observed Events (Validation)** | `42` / 384 | `6` / 384 | Observed threshold exceedance counts |
+| **Validation Base Rate** | `10.94%` | `1.56%` | Empirical event frequency in test sample |
+| **Calibration Climatology (p_ref)** | `10.32%` | `0.66%` | Prior reference frequency from train split |
+| **Brier Score (BS)** | **`0.1372`** | **`0.0205`** | Mean squared probability error (0.0 = perfect) |
+| **Reference Brier Score (BS_ref)** | `0.0974` | `0.0155` | Climatology benchmark Brier Score |
+| **Brier Skill Score (BSS)** | **`-0.4080`** | **`-0.3254`** | Skill improvement over climatology (> 0 is skill) |
+| **Expected Calibration Error (ECE)** | **`0.1169`** | **`0.0174`** | Weighted average reliability deviation |
+| **ROC-AUC (Discrimination)** | **`0.4609`** | **`0.4372`** | Area under ROC curve |
 
 ---
 
@@ -36,30 +36,30 @@
 ### A. Heavy Rainfall (`p_heavy`, threshold ≥ 64.5 mm)
 | Bin Range | Mean Forecast Prob | Observed Frequency | Count (Points) | Share (%) |
 |---|---|---|---|---|
-| `[0.0, 0.1)` | `0.0516` | `0.1010` | `198` | `51.6%` |
-| `[0.1, 0.2)` | `0.1398` | `0.1348` | `89` | `23.2%` |
-| `[0.2, 0.3)` | `0.2376` | `0.1200` | `25` | `6.5%` |
-| `[0.3, 0.4)` | `0.3544` | `0.1250` | `24` | `6.2%` |
-| `[0.4, 0.5)` | `0.4478` | `0.3333` | `9` | `2.3%` |
-| `[0.5, 0.6)` | `0.5267` | `0.2500` | `8` | `2.1%` |
-| `[0.6, 0.7)` | `0.6488` | `0.0000` | `6` | `1.6%` |
-| `[0.7, 0.8)` | `0.7413` | `0.0000` | `7` | `1.8%` |
-| `[0.8, 0.9)` | `0.8367` | `0.0000` | `5` | `1.3%` |
-| `[0.9, 1.0]` | `0.9462` | `0.1538` | `13` | `3.4%` |
+| `[0.0, 0.1)` | `0.0402` | `0.1103` | `263` | `68.5%` |
+| `[0.1, 0.2)` | `0.1460` | `0.1017` | `59` | `15.4%` |
+| `[0.2, 0.3)` | `0.2521` | `0.0909` | `11` | `2.9%` |
+| `[0.3, 0.4)` | `0.3346` | `0.2222` | `18` | `4.7%` |
+| `[0.4, 0.5)` | `0.4384` | `0.0000` | `7` | `1.8%` |
+| `[0.5, 0.6)` | `0.5299` | `0.1429` | `7` | `1.8%` |
+| `[0.6, 0.7)` | `0.6367` | `0.0000` | `5` | `1.3%` |
+| `[0.7, 0.8)` | `0.7348` | `0.0000` | `4` | `1.0%` |
+| `[0.8, 0.9)` | `0.8478` | `0.0000` | `4` | `1.0%` |
+| `[0.9, 1.0]` | `0.9618` | `0.1667` | `6` | `1.6%` |
 
 ### B. Very Heavy Rainfall (`p_very_heavy`, threshold ≥ 115.6 mm)
 | Bin Range | Mean Forecast Prob | Observed Frequency | Count (Points) | Share (%) |
 |---|---|---|---|---|
-| `[0.0, 0.1)` | `0.0083` | `0.0163` | `367` | `95.6%` |
-| `[0.1, 0.2)` | `0.1507` | `0.0000` | `6` | `1.6%` |
-| `[0.2, 0.3)` | `0.2351` | `0.0000` | `7` | `1.8%` |
-| `[0.3, 0.4)` | `0.3472` | `0.0000` | `1` | `0.3%` |
-| `[0.4, 0.5)` | `0.4292` | `0.0000` | `1` | `0.3%` |
-| `[0.5, 0.6)` | `0.5139` | `0.0000` | `1` | `0.3%` |
+| `[0.0, 0.1)` | `0.0077` | `0.0160` | `374` | `97.4%` |
+| `[0.1, 0.2)` | `0.1502` | `0.0000` | `4` | `1.0%` |
+| `[0.2, 0.3)` | `0.2500` | `nan` | `0` | `0.0%` |
+| `[0.3, 0.4)` | `0.3177` | `0.0000` | `2` | `0.5%` |
+| `[0.4, 0.5)` | `0.4082` | `0.0000` | `2` | `0.5%` |
+| `[0.5, 0.6)` | `0.5903` | `0.0000` | `1` | `0.3%` |
 | `[0.6, 0.7)` | `0.6500` | `nan` | `0` | `0.0%` |
-| `[0.7, 0.8)` | `0.7042` | `0.0000` | `1` | `0.3%` |
+| `[0.7, 0.8)` | `0.7500` | `nan` | `0` | `0.0%` |
 | `[0.8, 0.9)` | `0.8500` | `nan` | `0` | `0.0%` |
-| `[0.9, 1.0]` | `0.9500` | `nan` | `0` | `0.0%` |
+| `[0.9, 1.0]` | `0.9167` | `0.0000` | `1` | `0.3%` |
 
 ---
 

@@ -188,6 +188,10 @@ def generate_features_daily():
                 "rainfall_anomaly": round(np.random.normal(0, 10), 2),
                 "lps_flag": int(np.random.choice([0, 1], p=[0.8, 0.2])),
                 "wd_flag": int(np.random.choice([0, 1], p=[0.9, 0.1])),
+                "trough_position_lat": round(np.random.normal(22, 2), 2),
+                "zonal_shear_850": round(np.random.normal(10, 5), 2),
+                "orographic_index": round(np.random.uniform(0.5, 2.5), 3),
+                "coastal_convergence_index": round(np.random.uniform(0.5, 2.0), 3),
                 "u850_anomaly": round(np.random.normal(0, 4), 2),
                 "v850_anomaly": round(np.random.normal(0, 3), 2),
             }

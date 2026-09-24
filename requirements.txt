@@ -7,6 +7,8 @@ pandas
 xarray
 netCDF4
 scipy
+pyyaml
+python-dotenv
 
 # Track A (Pradeep) — ingestion, preprocessing, regime classifier
 cdsapi              # ERA5 access

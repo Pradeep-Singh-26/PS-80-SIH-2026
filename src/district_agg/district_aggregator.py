@@ -35,7 +35,7 @@ def _classify_rainfall(mm: float) -> str:
     t = _get_thresholds()
     if mm >= t.get("extremely_heavy", 204.5):
         return "extremely_heavy"
-    elif mm >= t.get("very_heavy", 115.5):
+    elif mm >= t.get("very_heavy", 115.6):
         return "very_heavy"
     elif mm >= t.get("heavy", 64.5):
         return "heavy"

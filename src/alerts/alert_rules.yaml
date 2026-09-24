@@ -21,7 +21,7 @@ rules:
     severity: ALERT
     message_template: >
       ALERT: {district_name} has {p_very_heavy:.0%} probability of very
-      heavy rainfall (>= 115.5mm) on {date}. Regime: {dominant_regime}.
+      heavy rainfall (>= 115.6mm) on {date}. Regime: {dominant_regime}.
 
   - name: high_rainfall_observed
     description: "Corrected forecast exceeds heavy threshold with high confidence"

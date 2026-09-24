@@ -26,8 +26,15 @@ class MultiLabelRegimeClassifier:
         self.thresholds: Dict[str, float] = {rc: 0.5 for rc in REGIME_CLASSES}
         self.is_fitted = False
 
+    def _prepare_X(self, X: pd.DataFrame) -> pd.DataFrame:
+        X_mat = X.copy()
+        for col in FEATURE_COLUMNS:
+            if col not in X_mat.columns:
+                X_mat[col] = 0.0
+        return X_mat[FEATURE_COLUMNS]
+
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "MultiLabelRegimeClassifier":
-        X_mat = X[FEATURE_COLUMNS].copy()
+        X_mat = self._prepare_X(X)
 
         def _train_single_label(label: str):
             if label not in Y.columns:
@@ -71,7 +78,7 @@ class MultiLabelRegimeClassifier:
         if not self.is_fitted:
             raise RuntimeError("Classifier must be fitted before predict_proba.")
 
-        X_mat = X[FEATURE_COLUMNS]
+        X_mat = self._prepare_X(X)
         prob_dict = {}
 
         for label in REGIME_CLASSES:
@@ -114,7 +121,7 @@ class MultiLabelRegimeClassifier:
         if not self.is_fitted:
             raise RuntimeError("Classifier must be fitted before computing attributions.")
 
-        X_mat = X[FEATURE_COLUMNS]
+        X_mat = self._prepare_X(X)
         attributions = {}
 
         labels_to_eval = [target_label] if target_label else REGIME_CLASSES

@@ -3,22 +3,22 @@
 ## Overall Metrics (all dates, all grid cells)
 
 ### raw_nwp
-- **RMSE**: 39.30 mm
-- **Bias**: 11.79 mm
-- **MAE**: 29.19 mm
+- **RMSE**: 39.49 mm
+- **Bias**: 11.74 mm
+- **MAE**: 29.26 mm
 - **N points**: 1440
 
 #### Threshold: heavy (>= 64.5 mm)
 - POD: 0.272
-- FAR: 0.881
-- CSI: 0.091
+- FAR: 0.885
+- CSI: 0.088
 - ETS: 0.008
 
-#### Threshold: very_heavy (>= 115.5 mm)
-- POD: 0.071
+#### Threshold: very_heavy (>= 115.6 mm)
+- POD: 0.077
 - FAR: 0.984
-- CSI: 0.013
-- ETS: 0.005
+- CSI: 0.014
+- ETS: 0.006
 
 #### Threshold: extremely_heavy (>= 204.5 mm)
 - POD: N/A
@@ -28,17 +28,17 @@
 
 ### ensemble
 - **RMSE**: 29.51 mm
-- **Bias**: 7.06 mm
-- **MAE**: 22.77 mm
+- **Bias**: 7.08 mm
+- **MAE**: 22.67 mm
 - **N points**: 1440
 
 #### Threshold: heavy (>= 64.5 mm)
-- POD: 0.165
-- FAR: 0.884
-- CSI: 0.073
-- ETS: 0.004
+- POD: 0.159
+- FAR: 0.892
+- CSI: 0.069
+- ETS: 0.002
 
-#### Threshold: very_heavy (>= 115.5 mm)
+#### Threshold: very_heavy (>= 115.6 mm)
 - POD: 0.000
 - FAR: 1.000
 - CSI: 0.000
@@ -51,22 +51,22 @@
 - ETS: N/A
 
 ### corrected
-- **RMSE**: 26.95 mm
-- **Bias**: -0.09 mm
-- **MAE**: 19.01 mm
+- **RMSE**: 23.22 mm
+- **Bias**: -0.53 mm
+- **MAE**: 15.21 mm
 - **N points**: 1440
 
 #### Threshold: heavy (>= 64.5 mm)
-- POD: 0.146
-- FAR: 0.824
-- CSI: 0.086
-- ETS: 0.034
+- POD: 0.192
+- FAR: 0.663
+- CSI: 0.139
+- ETS: 0.100
 
-#### Threshold: very_heavy (>= 115.5 mm)
+#### Threshold: very_heavy (>= 115.6 mm)
 - POD: 0.000
 - FAR: 1.000
 - CSI: 0.000
-- ETS: -0.004
+- ETS: -0.003
 
 #### Threshold: extremely_heavy (>= 204.5 mm)
 - POD: N/A

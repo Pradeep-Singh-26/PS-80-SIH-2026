@@ -42,8 +42,15 @@ def evaluate_classifier(
     X_test = df_X[test_mask].copy()
     Y_test = df_Y[test_mask].copy()
 
+    if len(X_test) == 0:
+        split_idx = max(1, int(0.7 * len(df_X)))
+        X_test = df_X.iloc[split_idx:].copy()
+        Y_test = df_Y.iloc[split_idx:].copy()
+        logger.info(f"TEST_YEARS {TEST_YEARS} not matched in dataset. Using remaining {len(X_test)} samples for evaluation.")
+    else:
+        logger.info(f"Evaluating on {len(X_test)} held-out days from year(s) {TEST_YEARS}...")
+
     n_test = len(X_test)
-    logger.info(f"Evaluating on {n_test} held-out days from year(s) {TEST_YEARS}...")
 
     # Predict probabilities and binary labels
     prob_df = clf.predict_proba(X_test)

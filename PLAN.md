@@ -413,7 +413,7 @@ Same input/output contract discipline as before: every task states
 - IMD radar mosaic availability (for optional short-lead-time products).
 - District boundary shapefile + IMD station metadata.
 - IMD's official rainfall category thresholds (heavy ≥64.5mm, very heavy
-  ≥115.5mm, extremely heavy ≥204.5mm per 24h) — used verbatim, not invented.
+  ≥115.6mm, extremely heavy ≥204.5mm per 24h) — used verbatim, not invented.
 
 ### 9.3 Methods
 - Standard verification formulas: RMSE, ETS, CSI, POD, FAR, FSS (multi-

@@ -114,7 +114,7 @@ def _compute_metrics_for_pair(
 def run_comparison():
     """Main entry point: produce outputs/verification_report/."""
     cfg = get_config()
-    thresholds = cfg.get("thresholds", {"heavy": 64.5, "very_heavy": 115.5, "extremely_heavy": 204.5})
+    thresholds = cfg.get("thresholds", {"heavy": 64.5, "very_heavy": 115.6, "extremely_heavy": 204.5})
 
     datasets = _load_datasets()
     obs_data = _extract_precip(datasets["obs"])
