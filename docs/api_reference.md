@@ -1,73 +1,185 @@
-# API Reference
+# PS-80 REST API Reference Manual
 
-The PS-80 backend is a FastAPI REST service. By default, it runs on port `8000`.
+The PS-80 backend is an asynchronous FastAPI RESTful microservice designed for operational meteorology, forecaster decision support, and emergency disaster alert dissemination.
 
-Base URL: `http://localhost:8000/api/v1`
+- **Default Local Port:** `8000`
+- **Base Endpoint URL:** `http://localhost:8000/api/v1`
+- **Interactive Swagger Documentation:** `http://localhost:8000/docs`
+- **ReDoc Technical Specification:** `http://localhost:8000/redoc`
 
-## System
+---
 
-### `GET /health`
-Returns the system status and the availability of the Track C pipeline stages.
+## 1. System & Telemetry
 
-## Regime
+### `GET /api/v1/health`
+Returns system operational health, microservice version, and availability of pipeline stage outputs.
 
-### `GET /regime`
-Returns a list of regime classifications for all available dates.
-- **Query Params:** `start_date` (YYYY-MM-DD), `end_date` (YYYY-MM-DD)
+**Response `200 OK`:**
+```json
+{
+  "status": "ok",
+  "version": "0.1.0",
+  "pipeline_stages": {
+    "aggregate": "available",
+    "verify": "available",
+    "alerts": "available"
+  }
+}
+```
 
-### `GET /regime/{date}`
-Returns the regime classification for a specific date.
+### `POST /api/v1/cache/invalidate`
+Purges cached in-memory data tables so newly generated pipeline outputs are hot-reloaded immediately without service restart.
 
-## Products
+**Response `200 OK`:**
+```json
+{
+  "status": "cache_cleared"
+}
+```
 
-### `GET /districts`
-Returns aggregated district-level data.
-- **Query Params:** `district_name`, `start_date`, `end_date`
+---
 
-### `GET /districts/{date}`
-Returns all district data for a given date.
+## 2. Topography & CartoDEM
 
-### `GET /stations`
-Returns aggregated station-level data.
-- **Query Params:** `station_id`, `start_date`, `end_date`
+### `GET /api/v1/topography/cartodem`
+Queries ISRO NRSC Bhuvan CartoDEM integration status, token authorization state, elevation raster resolution, and terrain factor cache.
 
-### `GET /stations/{date}`
-Returns all station data for a given date.
+**Response `200 OK`:**
+```json
+{
+  "status": "ready",
+  "source": "ISRO / NRSC Bhuvan CartoDEM (1 arc-second DEM)",
+  "api_key_configured": true,
+  "api_key_masked": "cb1_3vj...e189",
+  "grid_available": true
+}
+```
 
-## Verification
+---
 
-### `GET /verification/summary`
-Returns the overall continuous and categorical metrics for raw vs. corrected forecasts.
+## 3. Synoptic Weather Regimes
 
-### `GET /verification/fss`
-Returns Fractions Skill Scores (FSS) at multiple spatial scales.
+### `GET /api/v1/regime/{date}`
+Fetches the active synoptic monsoon weather regime classification for a specific date (`YYYY-MM-DD`).
 
-### `GET /verification/reliability`
-Returns reliability diagram data (forecast probability vs. observed frequency).
+**Path Parameter:**
+- `date` (*string*, required): Date in format `YYYY-MM-DD` (e.g., `2024-06-15`).
 
-### `GET /verification/regime`
-Returns verification metrics broken down by the dominant weather regime.
+**Response `200 OK`:**
+```json
+{
+  "date": "2024-06-15",
+  "active_prob": 0.082,
+  "break_prob": 0.041,
+  "low_depression_prob": 0.125,
+  "western_disturbance_prob": 0.892,
+  "orographic_prob": 0.113,
+  "coastal_prob": 0.054,
+  "dominant_label": "western_disturbance",
+  "confidence": 0.892
+}
+```
 
-## Alerts
+### `GET /api/v1/regime`
+Retrieves chronological weather regime classifications with optional date window filtering.
 
-### `GET /alerts`
-Returns generated alerts.
-- **Query Params:** `severity` (WARNING, ALERT, CRITICAL), `district_name`
+**Query Parameters:**
+- `start_date` (*string*, optional): Filter from start date (inclusive).
+- `end_date` (*string*, optional): Filter to end date (inclusive).
 
-## Feedback
+---
 
-### `POST /feedback`
-Submit forecaster feedback for downstream model retraining.
-- **Body Schema:**
+## 4. Products: District & Station Forecasts
+
+### `GET /api/v1/districts/{date}`
+Returns all district-level post-processed forecasts, IMD intensity categories, exceedance probabilities, and 90% uncertainty intervals for a specific date.
+
+**Response `200 OK`:**
+```json
+[
+  {
+    "district_name": "Pune",
+    "date": "2024-06-15",
+    "corrected_rainfall_mm": 54.2,
+    "rainfall_category": "moderate",
+    "p_heavy": 0.385,
+    "p_very_heavy": 0.042,
+    "uncertainty_lower": 38.1,
+    "uncertainty_upper": 72.4,
+    "dominant_regime": "orographic",
+    "regime_confidence": 0.88,
+    "correction_method": "quantile_mapping_regime_orographic"
+  }
+]
+```
+
+### `GET /api/v1/districts`
+Query district time series with optional filtering by name or date range.
+
+**Query Parameters:**
+- `district_name` (*string*, optional): Name of district (e.g., `Pune`, `Nagpur`, `Bhopal`).
+- `start_date` (*string*, optional): Range start date.
+- `end_date` (*string*, optional): Range end date.
+
+### `GET /api/v1/stations/{date}`
+Retrieves AWS observation station-level downscaled forecasts and uncertainty bounds for a target date.
+
+### `GET /api/v1/stations`
+Query station-level time series with optional filtering by station ID or date range.
+
+---
+
+## 5. Forecast Verification & Skill Scorecards
+
+### `GET /api/v1/verification/summary`
+Returns continuous (RMSE, MAE, Bias) and categorical (POD, FAR, CSI, ETS) skill scores comparing Raw NWP vs. Ensemble vs. AI-Corrected forecasts.
+
+### `GET /api/v1/verification/fss`
+Retrieves multi-scale Fractions Skill Scores (FSS) at neighborhood radiuses 1, 2, 3, and 5 grid cells.
+
+### `GET /api/v1/verification/reliability`
+Returns observed event frequency vs. forecasted probability bins for heavy and very heavy rainfall categories.
+
+### `GET /api/v1/verification/regime`
+Returns skill metrics stratified by dominant weather regimes.
+
+---
+
+## 6. Disaster Management Alerts
+
+### `GET /api/v1/alerts`
+Retrieves automated disaster bulletins generated by the rule engine.
+
+**Query Parameters:**
+- `severity` (*string*, optional): Filter by `WARNING`, `ALERT`, or `CRITICAL`.
+- `district_name` (*string*, optional): Filter by district name.
+
+---
+
+## 7. Forecaster Human-in-the-Loop Feedback
+
+### `POST /api/v1/feedback`
+Captures expert forecaster annotations, subjective corrections, and synoptic ground observations to trigger MLOps active-learning retraining.
+
+**Request Body (`application/json`):**
 ```json
 {
   "date": "2024-06-15",
   "feedback_type": "regime_correction",
   "original_value": "active",
   "corrected_value": "break",
-  "comment": "Trough was further south than predicted.",
+  "comment": "Trough migrated northward into foothills.",
   "district_name": "Pune",
   "station_id": null,
-  "forecaster_id": "F123"
+  "forecaster_id": "IMD_FORECASTER_42"
+}
+```
+
+**Response `200 OK`:**
+```json
+{
+  "status": "accepted",
+  "feedback_id": "c89b21ea",
+  "message": "Feedback recorded. Will be consumed by retraining pipeline."
 }
 ```
