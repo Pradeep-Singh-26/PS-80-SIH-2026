@@ -372,8 +372,8 @@ if nav_view == "🗺️ District & Station Map":
             <div class="kpi-card">
                 <div class="kpi-label">Peak Recorded Rain</div>
                 <div class="kpi-value">{max_rain:.1f} <span style="font-size: 0.9rem; color: #64748b;">mm</span></div>
-                <div class="kpi-tag" style="color: {'#dc2626' if max_rain >= 115.5 else '#0284c7'};">
-                    {'⚠️ Very Heavy' if max_rain >= 115.5 else ('⚡ Heavy' if max_rain >= 64.5 else '🌧️ Moderate')}
+                <div class="kpi-tag" style="color: {'#dc2626' if max_rain >= 115.6 else '#0284c7'};">
+                    {'⚠️ Very Heavy' if max_rain >= 115.6 else ('⚡ Heavy' if max_rain >= 64.5 else '🌧️ Moderate')}
                 </div>
             </div>
             """, unsafe_allow_html=True)

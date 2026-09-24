@@ -23,7 +23,7 @@ The platform is architected into three decoupled functional tracks adhering to s
 * **Track B — Physics-Informed Bias Correction & Heavy Rain Estimation**
   - Regime-conditioned Quantile Mapping & Gradient Boosted Error Correction.
   - Synoptic Analog Pattern Matching.
-  - Calibrated Exceedance Probabilities for Heavy ($\ge 64.5\text{ mm}$) and Very Heavy ($\ge 115.5\text{ mm}$) rainfall with 90% uncertainty intervals.
+  - Calibrated Exceedance Probabilities for Heavy ($\ge 64.5\text{ mm}$) and Very Heavy ($\ge 115.6\text{ mm}$) rainfall with 90% uncertainty intervals.
 
 * **Track C — Spatial Aggregation, Alerts, API & Dashboard Serving**
   - District polygon zonal aggregation and point-station interpolation.

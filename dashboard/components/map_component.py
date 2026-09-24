@@ -9,7 +9,7 @@ def _severity_color(rainfall_mm: float) -> str:
     """Map rainfall to modern vibrant colors that pop across all basemaps."""
     if rainfall_mm >= 204.5:
         return "#dc2626"  # Extremely heavy (Crimson)
-    elif rainfall_mm >= 115.5:
+    elif rainfall_mm >= 115.6:
         return "#ea580c"  # Very heavy (Orange Red)
     elif rainfall_mm >= 64.5:
         return "#f59e0b"  # Heavy (Amber)
@@ -141,7 +141,7 @@ def create_station_map(station_df: pd.DataFrame, default_mode: str = "🛰️ Sa
                     <td style="font-weight: 700; color: {'#dc2626' if p_heavy > 0.4 else '#0f172a'}; text-align: right;">{p_heavy:.1%}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="color: #64748b; padding: 4px 0;">P(Very Heavy &ge;115.5mm):</td>
+                    <td style="color: #64748b; padding: 4px 0;">P(Very Heavy &ge;115.6mm):</td>
                     <td style="font-weight: 700; color: {'#dc2626' if p_very_heavy > 0.3 else '#0f172a'}; text-align: right;">{p_very_heavy:.1%}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
@@ -201,10 +201,10 @@ def create_station_map(station_df: pd.DataFrame, default_mode: str = "🛰️ Sa
             <span><b>Extremely Heavy</b> (&ge;204.5 mm)</span>
             
             <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#ea580c; border:1px solid #9a3412;"></span>
-            <span><b>Very Heavy</b> (115.5 - 204.4 mm)</span>
+            <span><b>Very Heavy</b> (115.6 - 204.4 mm)</span>
             
             <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f59e0b; border:1px solid #78350f;"></span>
-            <span><b>Heavy</b> (64.5 - 115.4 mm)</span>
+            <span><b>Heavy</b> (64.5 - 115.5 mm)</span>
             
             <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#0284c7; border:1px solid #0369a1;"></span>
             <span><b>Moderate</b> (15.6 - 64.4 mm)</span>

@@ -47,7 +47,7 @@ outputs:
 # ------ Thresholds (IMD official categories, mm/24h) ------
 thresholds:
   heavy: 64.5
-  very_heavy: 115.5
+  very_heavy: 115.6
   extremely_heavy: 204.5
 
 # ------ API settings ------

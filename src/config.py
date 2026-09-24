@@ -16,9 +16,14 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
-
 _ROOT_DIR = Path(__file__).resolve().parent.parent
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(_ROOT_DIR / ".env")
+except ImportError:
+    pass
+
 _DEFAULT_CONFIG = _ROOT_DIR / "config.yaml"
 _config_cache: dict | None = None
 

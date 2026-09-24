@@ -164,7 +164,7 @@ def load_cartodem_info() -> dict:
 
     cfg = get_config()
     carto_cfg = cfg.get("cartodem", {})
-    key = os.environ.get("CARTODEM_API_KEY") or carto_cfg.get("api_key", "")
+    key = os.environ.get("CARTODEM_API_KEY") or os.environ.get("BHUVAN_API_KEY") or carto_cfg.get("api_key", "")
     masked_key = f"{key[:7]}...{key[-4:]}" if len(key) >= 11 else "***"
 
     root = get_root_dir()

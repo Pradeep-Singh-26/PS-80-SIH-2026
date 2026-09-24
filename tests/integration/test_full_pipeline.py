@@ -23,7 +23,8 @@ class TestFullPipeline:
     """Run all Track C stages and verify outputs."""
 
     @pytest.fixture(autouse=True, scope="class")
-    def run_pipeline(self):
+    @classmethod
+    def run_pipeline(cls):
         """Run all Track C stages once before all tests in this class."""
         from src.district_agg import run as run_aggregate
         from src.verification import run as run_verify
@@ -34,6 +35,42 @@ class TestFullPipeline:
         run_alerts()
 
     # ------------------------------------------------------------------
+    # Stage wrappers & threshold consistency
+    # ------------------------------------------------------------------
+    def test_all_pipeline_stage_wrappers_exist(self):
+        from src.ingest import run as run_ingest
+        from src.preprocess import run as run_preprocess
+        from src.regime_classifier import run as run_classifier
+        from src.bias_correction import run as run_correction
+        from src.heavy_rain_prob import run as run_probability
+        from src.district_agg import run as run_aggregate
+        from src.verification import run as run_verify
+        from src.alerts import run as run_alerts
+
+        for fn in [
+            run_ingest,
+            run_preprocess,
+            run_classifier,
+            run_correction,
+            run_probability,
+            run_aggregate,
+            run_verify,
+            run_alerts,
+        ]:
+            assert callable(fn), f"Stage wrapper {fn} is not callable"
+
+    def test_very_heavy_threshold_project_wide(self):
+        import yaml
+        from src.config import get_config
+
+        # Check config.test.yaml
+        cfg_test = get_config()
+        assert cfg_test["thresholds"]["very_heavy"] == 115.6
+
+        # Check config.yaml
+        with open(ROOT / "config.yaml", "r", encoding="utf-8") as f:
+            cfg_prod = yaml.safe_load(f)
+        assert cfg_prod["thresholds"]["very_heavy"] == 115.6
     # District aggregation
     # ------------------------------------------------------------------
     def test_district_table_exists(self):
